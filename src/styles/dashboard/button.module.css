@@ -1,0 +1,62 @@
+/* Buttons */
+.button {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: 0.2s ease;
+    font-weight: 500;
+}
+
+
+.edit {
+    background-color: #3498db;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+.edit:hover {
+    background-color: #2980b9;
+}
+
+.delete {
+    background-color: #e74c3c;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.delete:hover {
+    background-color: #c0392b;
+}
+
+.add {
+    margin-left: 15px;
+    color: white;
+    background-color: #27ae60;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.add:hover {
+    background-color: #219150;
+}
+
+.small {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.medium {
+    font-weight: 500;
+    padding: 6px 14px;
+    font-size: 14px;
+}

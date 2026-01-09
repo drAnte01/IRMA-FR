@@ -1,0 +1,165 @@
+/* styles/navbar/navBar.module.css */
+
+.navbar {
+    position: fixed;
+    background-color: #1f2229;
+    width: 20%;
+    height: 100vh;
+}
+
+.title {
+    color: #ffffff;
+    text-align: center;
+    padding: 30px 0;
+    font-size: 32px;
+    letter-spacing: 2.5px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.navigationMenu {
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px 20px 20px;
+}
+
+.navigationMenu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navigationMenu ul li {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.navigationMenu ul a {
+    text-decoration: none;
+}
+
+.navigationMenu ul a li {
+    color: white;
+    font-size: 18px;
+}
+
+.navigationMenu ul a li span {
+    margin-left: 20px;
+}
+
+.navigationMenu ul a li:hover,
+.navigationMenu ul a li:active {
+    background-color: #61d9fa;
+}
+
+.navigationMenu ul a li:hover span,
+.navigationMenu ul a li:hover svg {
+    color: #1f2229;
+}
+
+.navLink {
+    color: white;
+    text-decoration: none;
+    padding: 10px 0;
+    font-size: 18px;
+}
+
+
+.active {
+    background-color: #61d9fa;
+     font-weight: bold;
+}
+
+.active span,
+.active svg {
+    color: #1f2229;
+}
+
+/* Log Out Button */
+.logOut {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.logOut button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: transparent;
+    color: #ff4d4d;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: #ff4d4d 2px solid;
+    font-weight: bold;
+}
+
+.logOut button:hover {
+    background-color: #ff4d4d;
+}
+
+.logOut svg {
+    font-size: 20px;
+    color: #ff4d4d;
+}
+
+.logOut button:hover svg,
+.logOut button:hover {
+    color: white;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .navbar {
+        width: 100%;
+        /* full width */
+        height: auto;
+        /* automatska visina */
+        position: relative;
+        /* više ne fiksirano sa strane */
+        display: flex;
+        flex-direction: column;
+        padding: 10px 0;
+    }
+
+    .title {
+        font-size: 24px;
+        padding: 20px 0;
+    }
+
+    .navigationMenu {
+        padding: 0 10px 10px 10px;
+    }
+
+    .navigationMenu ul li {
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    .navigationMenu ul a li span {
+        margin-left: 12px;
+    }
+
+    /* Log Out dugme na dnu, centrirano */
+    .logOut {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        transform: none;
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .logOut button {
+        width: 90%;
+        max-width: 300px;
+    }
+}

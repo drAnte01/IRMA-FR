@@ -1,0 +1,68 @@
+.messageContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 250px;
+    max-width: 350px;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+}
+
+/* Success / Error colors */
+.messageContainer.success {
+    background-color: #4BB543;
+    /* zelena */
+}
+
+.messageContainer.error {
+    background-color: #e04343;
+    /* crvena */
+}
+
+/* Close button */
+.close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    transition: color 0.2s;
+}
+
+.close:hover {
+    color: #ccc;
+}
+
+/* Title */
+.title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Content */
+.content {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Slide-in animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

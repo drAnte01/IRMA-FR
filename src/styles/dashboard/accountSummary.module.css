@@ -1,0 +1,87 @@
+/*accountSummary*/
+
+.accountSummary {
+    background-color: #2c3e50;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Naziv restorana */
+.restaurantName {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 28px;
+    letter-spacing: 1.5px;
+}
+
+/* Period stats */
+.periodicStats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.statCard {
+    flex: 1;
+    background-color: #1f2a36;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.label {
+    display: block;
+    font-size: 14px;
+    opacity: 0.8;
+    margin-bottom: 8px;
+}
+
+.amount {
+    font-size: 22px;
+    font-weight: bold;
+    color: green;
+}
+
+/* Unos stanja */
+.balanceInput {
+    background-color: #1f2a36;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.balanceInput label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.inputRow {
+    display: flex;
+    gap: 10px;
+}
+
+.inputRow input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+.inputRow button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    background-color: #3498db;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.inputRow button:hover {
+    background-color: #2980b9;
+}
+
+/*end accountSummary*/
