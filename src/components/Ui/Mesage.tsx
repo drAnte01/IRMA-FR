@@ -1,16 +1,16 @@
 //components/Ui/message
 import { useEffect, useState } from "react";
 import style from "../../styles/Ui/message.module.css"
+import type { IMessage } from "../../interface/category"
 
 type MessageProp = {
-    isVisible: number
-    title?: "success" | "error" | " "
-    content?: string;
+    isVisible: number,
+    messageDetails: IMessage,
     message: "success" | "error" | " "
 }
 
 
-function Message({ isVisible, message, title, content }: MessageProp) {
+function Message({ isVisible, message, messageDetails }: MessageProp) {
     const [show, setShow] = useState<number>(isVisible)
 
     useEffect(() => {
@@ -25,8 +25,8 @@ function Message({ isVisible, message, title, content }: MessageProp) {
     return (
         <div className={`${style.messageContainer} ${style[message]}`}>
             <div className={style.close} onClick={() => setShow(0)}>X</div>
-            {title && <div className={style.title}>{title}</div>}
-            {content && <div className={style.content}>{content}</div>}
+            {messageDetails.title && <div className={style.title}>{messageDetails.title}</div>}
+            {messageDetails.content && <div className={style.content}>{messageDetails.content}</div>}
         </div>
     );
 }

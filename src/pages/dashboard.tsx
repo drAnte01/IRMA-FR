@@ -9,6 +9,9 @@ import Button from "../components/dashboard/button";
 import { getAllCategories } from "../api/category";
 import PopUp from "../components/dashboard/popUp";
 import Message from "../components/Ui/Mesage";
+import type { ICategory } from "../interface/category";
+import { CreateCategory } from "../api/category"
+import type { IMessage } from "../interface/category";
 
 library.add(faUtensils, faMartiniGlassCitrus);
 
@@ -18,11 +21,14 @@ function Dashboard() {
     const [categories, setCategories] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isPopUpOpen, setIsPopUpOpen] = useState<boolean>(false);
-    const [fetchDataStatus, setFetchData] = useState<number>(0);
-    const [errorfetchDataStatus, seterrorFetchData] = useState<number>(0);
+    const [fetchData, setFetchData] = useState<number>(0);
     const [messageStatus, setMessageStatus] = useState<"success" | "error" | " ">(" ");
-    const [contentMessage, setContentMessage] = useState<"Category successfuly added" | "Something went wrong" | " ">(" ");
     const [showMessage, setShowMessage] = useState<number>(0);
+    const [messageDetails, setMessageDetails] = useState<IMessage>({
+        title: "",
+        content: "",
+    });
+
 
     const ClosePopup = () => { setIsPopUpOpen(false); }
 
@@ -31,37 +37,51 @@ function Dashboard() {
         setIsloading(true);
         const fetchAllCategories = async () => {
             try {
-                console.log("ovoliko iznosi brojac: " + fetchDataStatus)
-                if (fetchDataStatus > 0) {
-                    setMessageStatus("success");
-                    setContentMessage("Category successfuly added");
-                    setShowMessage((prev) => prev + 1);
-                };
                 const data = await getAllCategories();
                 setCategories(data);
             } catch (error) {
-                console.log("ovooo je brojac: " + errorfetchDataStatus)
-                if (errorfetchDataStatus <= 0) {
-                    setMessageStatus("error");
-                    setContentMessage("Something went wrong");
-                    setShowMessage((prev) => prev + 1);
-                }
-                setError("Failed to fetch categories");
-
+                setError("Failed to fetch categories" + error);
             } finally {
                 setIsloading(false);
             }
         }
         fetchAllCategories();
-    }, [fetchDataStatus, errorfetchDataStatus]);
+    }, [fetchData]);
+
+    /* CREATING NEW CATEGORY */
+    const handleSubmit = async (categoryData: ICategory) => {
+        try {
+            await CreateCategory(categoryData);
+            setMessageStatus("success")
+            setShowMessage((prev) => prev + 1)
+            setMessageDetails({
+                title: "success",
+                content: "Category successfuly added"
+            });
+            setFetchData((prev) => prev + 1)
+            setIsPopUpOpen(false);
+        } catch (error) {
+            setMessageStatus("error")
+            setError("Something went wrong:" + error);
+            setShowMessage((prev) => prev + 1)
+            setMessageDetails({
+                title: "error",
+                content: "Could not add category, press f12 to see more..."
+            });
+            setIsPopUpOpen(false);
+
+        }
+    };
+
+
 
 
     return (
         <>
             <div className={style.dashboard}>
                 <AccountSummary />
-                <Message isVisible={showMessage} message={messageStatus} title={messageStatus} content={contentMessage} />
-                <PopUp fetchData={() => setFetchData(prev => prev + 1)} errorStatusmessage={() => seterrorFetchData(prev => prev - 1)} title={`Category ${Active}`} labels={{ name: "Category Name", type: "Category Type" }} closemodal={ClosePopup} status={isPopUpOpen} input={""} type={Active} />
+                <Message isVisible={showMessage} message={messageStatus} messageDetails={messageDetails} />
+                <PopUp onSubmit={handleSubmit} title={`Category ${Active}`} labels={{ name: "Category Name", type: "Category Type" }} closemodal={ClosePopup} status={isPopUpOpen} input={""} type={Active} />
                 <div className={style.itemsContainer}>
                     <div className={style.tabs}>
                         <div className={`${style.tab} ${Active === "food" ? style.active : ""}`} onClick={() => { setActive("food") }}><h2><FontAwesomeIcon icon={faUtensils}></FontAwesomeIcon> Food</h2></div>
