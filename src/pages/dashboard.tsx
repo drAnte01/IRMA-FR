@@ -3,15 +3,13 @@ import style from "../styles/dashboard/dashboard.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUtensils, faMartiniGlassCitrus } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AccountSummary from "../components/dashboard/accountSummary";
 import Button from "../components/dashboard/button";
-import { getAllCategories } from "../api/category";
+import { getAllCategories, CreateCategory, DeleteCategory, UpdateCategory } from "../api/category";
 import PopUp from "../components/dashboard/popUp";
 import Message from "../components/Ui/Mesage";
-import type { ICategory } from "../interface/category";
-import { CreateCategory } from "../api/category"
-import type { IMessage } from "../interface/category";
+import type { ICategory, IMessage, IPopUp } from "../interface/category";
 
 library.add(faUtensils, faMartiniGlassCitrus);
 
@@ -28,7 +26,16 @@ function Dashboard() {
         title: "",
         content: "",
     });
-
+    const [popupInfo, setPopupInfo] = useState<IPopUp>({
+        title: "",
+        type: Active,
+        labels: { name: "", type: "" },
+        onSubmit: undefined,
+        confirmClick: undefined,
+        options: [""],
+        content: "",
+    });
+    const currentId = useRef<number>(0)
 
     const ClosePopup = () => { setIsPopUpOpen(false); }
 
@@ -40,7 +47,8 @@ function Dashboard() {
                 const data = await getAllCategories();
                 setCategories(data);
             } catch (error) {
-                setError("Failed to fetch categories" + error);
+                console.log(error);
+                setError("Failed to fetch categories");
             } finally {
                 setIsloading(false);
             }
@@ -49,7 +57,29 @@ function Dashboard() {
     }, [fetchData]);
 
     /* CREATING NEW CATEGORY */
+    const createNewCategory = () => {
+        setIsPopUpOpen(true);
+        setPopupInfo({
+            title: "Add new Category",
+            labels: {
+                name: "Category Name",
+                type: "Category Type"
+            },
+            type: Active,
+            onSubmit: async (data: ICategory) => {
+                //    console.log("naziv: " + data?.name)
+                if (data.name)
+                    await handleSubmit({
+                        name: data?.name, // problem
+                        type: Active
+                    });
+                // console.log("ono sto sam dobio: " + data?.name + " " + Active);
+            }
+
+        });
+    }
     const handleSubmit = async (categoryData: ICategory) => {
+        console.log("testttt: " + categoryData.name + " " + categoryData.type)
         try {
             await CreateCategory(categoryData);
             setMessageStatus("success")
@@ -62,17 +92,95 @@ function Dashboard() {
             setIsPopUpOpen(false);
         } catch (error) {
             setMessageStatus("error")
-            setError("Something went wrong:" + error);
+            setError("Something went wrong");
             setShowMessage((prev) => prev + 1)
             setMessageDetails({
                 title: "error",
                 content: "Could not add category, press f12 to see more..."
             });
             setIsPopUpOpen(false);
-
         }
     };
 
+    /* DELETING CATEGORY */
+    const deleteCategory = () => {
+        setIsPopUpOpen(true);
+        setPopupInfo({
+            content: "Are you Sure you want to Delete this category?",
+            options: ["Yes", "No"],
+            confirmClick: async () => {
+                await handleDeleteCategory(currentId.current);
+            },
+        });
+    }
+    const handleDeleteCategory = async (id: number) => {
+        try {
+            await DeleteCategory(id)
+            setMessageStatus("success")
+            setShowMessage((prev) => prev + 1)
+            setMessageDetails({
+                title: "success",
+                content: "Category successfuly deleted"
+            });
+            setFetchData((prev) => prev + 1)
+            setIsPopUpOpen(false);
+        }
+        catch (error) {
+            setMessageStatus("error")
+            setError("Something went wrong:" + error);
+            setShowMessage((prev) => prev + 1)
+            setMessageDetails({
+                title: "error",
+                content: "Could not delete category, press f12 to see more..."
+            });
+            setIsPopUpOpen(false);
+        }
+    }
+
+    /* UPDATING CATEGORY */
+    const updateCategory = () => {
+        setIsPopUpOpen(true);
+        setPopupInfo({
+            title: "Update category",
+            labels: {
+                name: "Category Name",
+                type: "Category Type"
+            },
+            type: Active,
+            onSubmit: async (data: ICategory) => {
+                await handleupdateCategory(currentId.current, {
+                    name: data.name,
+                    type: Active
+                });
+                console.log("ovo je prvi id: " + currentId.current);
+            }
+        });
+    }
+
+    const handleupdateCategory = async (id: number, categoryData: ICategory) => {
+        try {
+            await UpdateCategory(id, categoryData)
+            setMessageStatus("success")
+            setShowMessage((prev) => prev + 1)
+            setMessageDetails({
+                title: "success",
+                content: "Category successfuly updated"
+            });
+            setFetchData((prev) => prev + 1)
+            setIsPopUpOpen(false);
+        }
+        catch (error) {
+            console.log("ovo je id: " + id);
+            setMessageStatus("error")
+            setError("Something went wrong:" + error);
+            setShowMessage((prev) => prev + 1)
+            setMessageDetails({
+                title: "error",
+                content: "Could not update category, press f12 to see more..."
+            });
+            setIsPopUpOpen(false);
+        }
+    }
 
 
 
@@ -81,7 +189,7 @@ function Dashboard() {
             <div className={style.dashboard}>
                 <AccountSummary />
                 <Message isVisible={showMessage} message={messageStatus} messageDetails={messageDetails} />
-                <PopUp onSubmit={handleSubmit} title={`Category ${Active}`} labels={{ name: "Category Name", type: "Category Type" }} closemodal={ClosePopup} status={isPopUpOpen} input={""} type={Active} />
+                <PopUp content={popupInfo.content} options={popupInfo.options} confirmClick={async () => await popupInfo.confirmClick?.()} onSubmit={async (data: ICategory) => await popupInfo.onSubmit?.(data)} title={popupInfo.title} labels={popupInfo.labels} closemodal={ClosePopup} status={isPopUpOpen} input={popupInfo.input} type={popupInfo.type} />
                 <div className={style.itemsContainer}>
                     <div className={style.tabs}>
                         <div className={`${style.tab} ${Active === "food" ? style.active : ""}`} onClick={() => { setActive("food") }}><h2><FontAwesomeIcon icon={faUtensils}></FontAwesomeIcon> Food</h2></div>
@@ -89,7 +197,7 @@ function Dashboard() {
                     </div>
 
                     <div className={style.categoryTable}>
-                        <h2>Category   <Button onClick={() => setIsPopUpOpen(true)} variant="add" size="medium">Add+</Button></h2>
+                        <h2>Category   <Button onClick={() => createNewCategory()} variant="add" size="medium">Add+</Button></h2>
                         <div className={style.tableWrapper}>
                             <table className={style.table}>
                                 <thead>
@@ -112,12 +220,12 @@ function Dashboard() {
                                     ) : (
                                         <>
                                             {categories.filter((category) => category.type === Active).map((category, index) => (
-                                                <tr key={category.id}>
+                                                <tr key={category.id} >
                                                     <td>{index + 1}</td>
                                                     <td>{category.name}</td>
                                                     <td>
-                                                        <Button variant="edit" size="small">Edit</Button>
-                                                        <Button variant="delete" size="small">Delete</Button>
+                                                        <Button onClick={() => { updateCategory(); currentId.current = category.id; setPopupInfo(prev => ({ ...prev, input: category.name, type: Active })) }} variant="edit" size="small">Edit</Button>
+                                                        <Button onClick={() => { deleteCategory(); currentId.current = category.id; setPopupInfo(prev => ({ ...prev, input: category.name, type: Active })) }} variant="delete" size="small">Delete</Button>
                                                     </td>
                                                 </tr>
                                             ))}

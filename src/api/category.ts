@@ -25,4 +25,27 @@ const CreateCategory = async (categoryData: ICategory) => {
   }
 };
 
-export { getAllCategories, CreateCategory };
+const DeleteCategory = async (id: number) => {
+  try {
+    const deleted = await axios.delete(`${API_URL}/${id}`);
+    return deleted.data;
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    throw error;
+  }
+};
+
+const UpdateCategory = async (id: number, CategryData: ICategory) => {
+  try {
+    const update = await axios.put(`${API_URL}/${id}`, CategryData);
+    return update.data;
+  } catch (error) {
+    console.log("ovo je id: " + id);
+    console.log("ovo su podaci: " + CategryData.name + " " + CategryData.type);
+
+    console.error("Error while updating category:", error);
+    throw error;
+  }
+};
+
+export { getAllCategories, CreateCategory, DeleteCategory, UpdateCategory };
