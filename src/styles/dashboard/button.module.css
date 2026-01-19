@@ -50,6 +50,31 @@
     background-color: #219150;
 }
 
+.filter {
+    padding: 6px 16px;
+    background-color: rgb(240, 240, 240);
+    /* tvoja pozadina */
+    color: #1f2229;
+    /* tamni tekst radi kontrasta */
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.filter:hover {
+    background-color: #e68a00;
+    /* malo tamnija nijansa na hover */
+    color: white;
+}
+
+.filter:active {
+    transform: scale(0.95);
+    /* lagano smanjenje prilikom klika */
+}
+
 .small {
     padding: 6px 12px;
     font-size: 13px;

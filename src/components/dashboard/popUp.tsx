@@ -1,20 +1,21 @@
 import style from "../../styles/dashboard/popUp.module.css";
-import type { ICategory } from "../../interface/category";
+import type { IFormData } from "../../interface/interface";
 import React, { useState, useEffect } from "react";
 
 type PopUpProps = {
-    onSubmit?: (onSubmit: ICategory) => void,
+    onSubmit?: (onSubmit: IFormData) => void,
     closemodal?: () => void;
     confirmClick?: () => Promise<void | undefined>;
     title?: string;
     type?: "food" | "drink";
-    labels?: { name: string, type: string };
+    labels?: { name?: string, type?: string, description?: string, price?: string, imageUrl?: string };
     input?: string;
     status?: boolean;
     options?: string[];
     content?: string;
+    select?: any[];
 }
-function PopUp({ content, options, confirmClick, onSubmit, closemodal, title, type, labels, input, status }: PopUpProps) {
+function PopUp({ content, options, confirmClick, onSubmit, closemodal, title, type, labels, input, status, select }: PopUpProps) {
 
     const [isVisible, setIsvisible] = useState(status);
 
@@ -31,8 +32,13 @@ function PopUp({ content, options, confirmClick, onSubmit, closemodal, title, ty
         e.preventDefault();
 
         const formData = new FormData(e.currentTarget);
-        const data: ICategory = {
-            name: formData.get("name") as string
+        const data: IFormData = {
+            name: formData.get("name") as string,
+            type: formData.get("type") as "food" | "drink",
+            description: formData.get("description") as string,
+            price: formData.get("price") ? Number(formData.get("price")) : undefined,
+            categoryId: formData.get("categoryId") ? Number(formData.get("categoryId")) : undefined,
+            imageUrl: formData.get("imageUrl") as string,
         }
         if (onSubmit)
             onSubmit(data)
@@ -52,7 +58,24 @@ function PopUp({ content, options, confirmClick, onSubmit, closemodal, title, ty
                                 <input type="text" name="name" defaultValue={input} required />
 
                                 <label>{labels?.type}</label>
-                                <input type="text" name="type" readOnly value={type} />
+                                {type && (<input type="text" name="type" readOnly value={type} />)}
+                                <select name="categoryId" defaultValue="" required>
+                                    <option value="" disabled>Odaberi kategoriju</option>
+                                    {select?.map((item) => (
+                                        <option key={item.id} value={item.id}>{item.name}</option>
+                                    ))}
+                                </select>
+                                <label>{labels?.description}</label>
+                                {labels.description && (<textarea
+                                    id="description"
+                                    name="description"
+                                    defaultValue={input}
+                                    required
+                                />)}
+                                {labels.imageUrl && (<label>{labels?.imageUrl}</label>)}
+                                {labels.imageUrl && (<input type="text" name="imageUrl" id="imageUrl" required placeholder="Image URL" />)}
+                                {labels.price && (<label>{labels?.price}</label>)}
+                                {labels.price && (<div className={style.priceInput}> <input type="number" name="price" id="price" required placeholder="0" /><p>BAM</p> </div>)}
 
                                 <button type="submit">Save</button>
                             </form>

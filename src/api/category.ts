@@ -1,7 +1,7 @@
 // src/api/category.ts
 
 import axios from "axios";
-import type { ICategory } from "../interface/category";
+import type { ICategory } from "../interface/interface";
 
 const API_URL = "http://localhost:5000/api/Category";
 

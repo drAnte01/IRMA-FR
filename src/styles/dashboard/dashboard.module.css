@@ -67,6 +67,7 @@
 
 .tableWrapper {
     max-height: 300px;
+    min-height: 300px;
     overflow-y: auto;
 }
 
@@ -103,7 +104,9 @@
 }
 
 /* Actions */
-.table td:last-child {
+
+
+.actionButton {
     display: flex;
     gap: 10px;
 }
@@ -143,3 +146,81 @@
 }
 
 /*end table*/
+
+/*items section*/
+.itemsTable {
+    margin-top: 20px;
+}
+
+.itemsNavigationBar {
+    position: relative;
+    display: flex;
+}
+
+.itemsNavigationBar input {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+
+    text-transform: capitalize;
+    width: 260px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 2px solid #2b2e38;
+    background-color: #1f2229;
+    color: #ffffff;
+    font-size: 15px;
+
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+/* placeholder */
+.itemsNavigationBar input::placeholder {
+    color: #9ca3af;
+}
+
+/* hover */
+.itemsNavigationBar input:hover {
+    border-color: #ff9900;
+}
+
+/* focus */
+.itemsNavigationBar input:focus {
+    border-color: #ff9900;
+}
+
+.filterOptions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Filter dugme */
+.activeFilter {
+    background-color: #e68a00 !important;
+    color: white !important;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.activeFilter,
+button {
+    text-transform: capitalize;
+}
+
+/* Stilizacija slike u tabeli */
+.itemsTable td img {
+    width: 60px;
+    /* maksimalna širina slike */
+    height: 60px;
+    /* maksimalna visina slike */
+    object-fit: cover;
+    /* prilagođava sliku u box, bez deformacije */
+    border-radius: 5px;
+    /* blago zaobljenje ivica */
+    display: block;
+    /* uklanja inline spacing */
+    margin: 0 auto;
+    /* centriranje u ćeliji */
+}
