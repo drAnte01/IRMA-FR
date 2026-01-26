@@ -4,35 +4,39 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUtensils, faMartiniGlassCitrus } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
-import AccountSummary from "../components/dashboard/accountSummary";
-import Button from "../components/dashboard/button";
-import { getAllCategories, CreateCategory, DeleteCategory, UpdateCategory } from "../api/category";
-import { CreateItem, getAllItems } from "../api/item";
-import PopUp from "../components/dashboard/popUp";
+import AccountSummary from "../components/accountSummary/accountSummary";
+import Button from "../components/button/button";
+import { CategoryAPI_URL } from "../api/category";
+import { ItemAPI_URL } from "../api/item";
+import PopUp from "../components/popup/popUp";
 import Message from "../components/Ui/Mesage";
-import type { ICategory, IFormData, IItem, IMessage, IPopUp } from "../interface/interface";
+import type { ICategory, IFormData, IItem, IPopUp } from "../interface/interface";
+import Table from "../components/table/table";
+import { useFetch } from "../hooks/useFetch";
+import { useCreate } from "../hooks/useCreate";
+import { useDelete } from "../hooks/useDelete";
+import { useUpdate } from "../hooks/useUpdate";
+import { createNewCategoryPopup, editCategoryPopup, createNewItemPopup, editItemPopup } from "../components/template/popupTemplates";
+import { confirmMessage, deleteErrorMessage, deleteSuccessMessage, errorMessage, successMessage, updateErrorMessage, updateSuccessMessage } from "../components/template/messageTemplates";
+import { filterItemsByActiveType } from "../help/customFunctions";
 
 library.add(faUtensils, faMartiniGlassCitrus);
 
 function Dashboard() {
-    const [activeFilter, setActiveFilter] = useState<string>("All");
     const [Active, setActive] = useState<"food" | "drink">("food");
-    const [isloading, setIsloading] = useState(false);
-    const [categories, setCategories] = useState<any[]>([]);
-    const [items, setItems] = useState<any[]>([]);
-    const [error, setError] = useState<string | null>(null);
+    const [activeFilter, setActiveFilter] = useState<string>("All");
+    const { data: categoryData, loading: categoryLoading, error: categoryError, refetch: refetchCategories } = useFetch<ICategory[]>(`${CategoryAPI_URL}`, Active); // Fetch categories
+    const { data: itemData, loading: itemLoading, error: itemError, refetch: refetchItems } = useFetch<IItem[]>(`${ItemAPI_URL}`, activeFilter); // Fetch items
+    const { createNewData, loading: _creating, error: _createError } = useCreate<any>(); // Create 
+    const { deleteData, loading: _deleting, error: _deleteError } = useDelete();   // Delete
+    const { updateData, loading: _updating, error: _updateError } = useUpdate<any>(); // Update
+    const [MessageProps, setMessageProps] = useState<{ isVisible: number, title: string; content: string, status: "success" | "error" | " " }>({ isVisible: 0, title: "", content: "", status: " " });
+
     const [isPopUpOpen, setIsPopUpOpen] = useState<boolean>(false);
-    const [fetchData, setFetchData] = useState<number>(0);
-    const [messageStatus, setMessageStatus] = useState<"success" | "error" | " ">(" ");
-    const [showMessage, setShowMessage] = useState<number>(0);
-    const [messageDetails, setMessageDetails] = useState<IMessage>({
-        title: "",
-        content: "",
-    });
     const [popupInfo, setPopupInfo] = useState<IPopUp>({
         title: "",
         type: Active,
-        labels: { name: "", type: "", description: "" },
+        labels: { name: "", type: "", description: "", price: "", imageUrl: "" },
         onSubmit: undefined,
         confirmClick: undefined,
         options: [""],
@@ -42,212 +46,182 @@ function Dashboard() {
 
     const ClosePopup = () => { setIsPopUpOpen(false); }
 
-    /* FETCHING CATEGORY DATA */
-    useEffect(() => {
-        const fetchAllData = async () => {
-            setIsloading(true);
-            try {
-                const [categoriesData, itemsData] = await Promise.all([
-                    getAllCategories(),
-                    getAllItems()
-                ]);
-                setCategories(categoriesData);
-                setItems(itemsData);
-            } catch (error) {
-                console.log(error);
-                setError("Failed to fetch data");
-            } finally {
-                setIsloading(false);
-            }
-        };
-
-        fetchAllData();
-    }, [fetchData]);
-
-
-
     /* SET FILTER TO DEFAULT VALUE */
     useEffect(() => {
         setActiveFilter("All");
     }, [Active]);
 
-    /* >>> CATEGORY CRUD OPERATIONS <<< */
-    /* CREATING NEW CATEGORY */
+    /* >>> CRUD OPERATIONS FOR CATEGORY <<< */
     const createNewCategory = () => {
         setIsPopUpOpen(true);
         setPopupInfo({
-            title: "Add new Category",
-            labels: {
-                name: "Category Name",
-                type: "Category Type"
-            },
-            type: Active,
+            ...createNewCategoryPopup(Active as "food" | "drink"),
             onSubmit: async (data: ICategory) => {
-                if (data.name)
-                    await handleSubmit({
-                        name: data?.name,
-                        type: Active
-                    });
+                if (data.name) {
+                    try {
+                        await createNewData(CategoryAPI_URL, {
+                            name: data.name,
+                            type: Active
+                        });
+                        setMessageProps({
+                            ...successMessage("category"),
+                            isVisible: MessageProps.isVisible + 1,
+                        });
+                        setIsPopUpOpen(false);
+                        await refetchCategories();
+                    } catch (err) {
+                        setMessageProps({
+                            ...errorMessage("category"),
+                            isVisible: MessageProps.isVisible + 1,
+                        });
+                        setIsPopUpOpen(false);
+                    }
+                }
             }
-
         });
-    }
-    const handleSubmit = async (categoryData: ICategory) => {
-        try {
-            await CreateCategory(categoryData);
-            setMessageStatus("success")
-            setShowMessage((prev) => prev + 1)
-            setMessageDetails({
-                title: "success",
-                content: "Category successfuly added"
-            });
-            setFetchData((prev) => prev + 1)
-            setIsPopUpOpen(false);
-        } catch (error) {
-            setMessageStatus("error")
-            setError("Something went wrong");
-            setShowMessage((prev) => prev + 1)
-            setMessageDetails({
-                title: "error",
-                content: "Could not add category, press f12 to see more..."
-            });
-            setIsPopUpOpen(false);
-        }
-    };
 
-    /* DELETING CATEGORY */
+    }
     const deleteCategory = () => {
         setIsPopUpOpen(true);
         setPopupInfo({
-            content: "Are you Sure you want to Delete this category?",
-            options: ["Yes", "No"],
+            ...confirmMessage("category"),
             confirmClick: async () => {
-                await handleDeleteCategory(currentId.current);
+                try {
+                    await deleteData(CategoryAPI_URL, currentId.current);
+                    setMessageProps({
+                        ...deleteSuccessMessage("category"),
+                        isVisible: MessageProps.isVisible + 1,
+                    });
+                    setIsPopUpOpen(false);
+                    await refetchCategories();
+                } catch (err) {
+                    setMessageProps({
+                        ...deleteErrorMessage("category"),
+                        isVisible: MessageProps.isVisible + 1,
+                    });
+                    setIsPopUpOpen(false);
+                }
             },
         });
     }
-    const handleDeleteCategory = async (id: number) => {
-        try {
-            await DeleteCategory(id)
-            setMessageStatus("success")
-            setShowMessage((prev) => prev + 1)
-            setMessageDetails({
-                title: "success",
-                content: "Category successfuly deleted"
-            });
-            setFetchData((prev) => prev + 1)
-            setIsPopUpOpen(false);
-        }
-        catch (error) {
-            setMessageStatus("error")
-            setError("Something went wrong:" + error);
-            setShowMessage((prev) => prev + 1)
-            setMessageDetails({
-                title: "error",
-                content: "Could not delete category, press f12 to see more..."
-            });
-            setIsPopUpOpen(false);
-        }
-    }
-
-    /* UPDATING CATEGORY */
     const updateCategory = () => {
         setIsPopUpOpen(true);
         setPopupInfo({
-            title: "Update category",
-            labels: {
-                name: "Category Name",
-                type: "Category Type"
-            },
-            type: Active,
+            ...editCategoryPopup(Active as "food" | "drink"),
             onSubmit: async (data: ICategory) => {
-                await handleupdateCategory(currentId.current, {
-                    name: data.name,
-                    type: Active
-                });
-            }
+                try {
+                    await updateData(CategoryAPI_URL, currentId.current, {
+                        name: data.name,
+                        type: Active
+                    });
+                    setMessageProps({
+                        ...updateSuccessMessage("category"),
+                        isVisible: MessageProps.isVisible + 1,
+                    });
+                    setIsPopUpOpen(false);
+                    await refetchCategories();
+                } catch (err) {
+                    setMessageProps({
+                        ...updateErrorMessage("category"),
+                        isVisible: MessageProps.isVisible + 1,
+                    });
+                    setIsPopUpOpen(false);
+                }
+            },
         });
     }
 
-    const handleupdateCategory = async (id: number, categoryData: ICategory) => {
-        try {
-            await UpdateCategory(id, categoryData)
-            setMessageStatus("success")
-            setShowMessage((prev) => prev + 1)
-            setMessageDetails({
-                title: "success",
-                content: "Category successfuly updated"
-            });
-            setFetchData((prev) => prev + 1)
-            setIsPopUpOpen(false);
-        }
-        catch (error) {
-            setMessageStatus("error")
-            setError("Something went wrong:" + error);
-            setShowMessage((prev) => prev + 1)
-            setMessageDetails({
-                title: "error",
-                content: "Could not update category, press f12 to see more..."
-            });
-            setIsPopUpOpen(false);
-        }
-    }
-
-    /* >>> ITEM CRUD OPERATIONS <<< */
-    /* CREATING NEW ITEM */
+    /* >>> CRUD OPERATIONS FOR ITEM <<< */
     const createNewItem = () => {
         setIsPopUpOpen(true);
         setPopupInfo({
-            title: "Add new Item",
-            labels: {
-                name: "Item Name",
-                type: "Category",
-                description: "Description",
-                price: "Price",
-                imageUrl: "Image URL"
-            },
-            select: categories.filter((category) => category.type === Active),
+            ...createNewItemPopup(categoryData ? categoryData.filter((category: ICategory) => category.type === Active) : []),
             onSubmit: async (data: IItem) => {
                 if (data.name)
-                    await handleCreateNewItem({
-                        name: data?.name,
-                        price: data?.price,
-                        description: data?.description,
-                        imageUrl: data?.imageUrl,
-                        categoryId: data?.categoryId
-                    });
+                    try {
+                        await createNewData(ItemAPI_URL, {
+                            name: data?.name,
+                            price: data?.price,
+                            description: data?.description,
+                            imageUrl: data?.imageUrl,
+                            categoryId: data?.categoryId
+                        });
+                        setMessageProps({
+                            ...successMessage("item"),
+                            isVisible: MessageProps.isVisible + 1,
+                        });
+                        setIsPopUpOpen(false);
+                        await refetchItems();
+                    } catch (err) {
+                        setMessageProps({
+                            ...errorMessage("item"),
+                            isVisible: MessageProps.isVisible + 1,
+                        });
+                        setIsPopUpOpen(false);
+                    }
             }
         });
     }
-    const handleCreateNewItem = async (itemData: IItem) => {
-        console.log("categoryId: " + itemData.categoryId + " name: " + itemData.name + " desc: " + itemData.description + " price: " + itemData.price + " imageUrl: " + itemData.imageUrl);
-        try {
-            await CreateItem(itemData);
-            setMessageStatus("success")
-            setShowMessage((prev) => prev + 1)
-            setMessageDetails({
-                title: "success",
-                content: "Item successfuly added"
-            });
-            setFetchData((prev) => prev + 1)
-            setIsPopUpOpen(false);
-        } catch (error) {
-            setMessageStatus("error")
-            setError("Something went wrong");
-            setShowMessage((prev) => prev + 1)
-            setMessageDetails({
-                title: "error",
-                content: "Could not add item, press f12 to see more..."
-            });
-            setIsPopUpOpen(false);
-        }
-    };
 
+    const deleteItem = () => {
+        setIsPopUpOpen(true);
+        setPopupInfo({
+            ...confirmMessage("item"),
+            confirmClick: async () => {
+                try {
+                    await deleteData(ItemAPI_URL, currentId.current);
+                    setMessageProps({
+                        ...deleteSuccessMessage("item"),
+                        isVisible: MessageProps.isVisible + 1,
+                    });
+                    setIsPopUpOpen(false);
+                    await refetchItems();
+                }
+                catch (err) {
+                    setMessageProps({
+                        ...deleteErrorMessage("item"),
+                        isVisible: MessageProps.isVisible + 1,
+                    });
+                    setIsPopUpOpen(false);
+                }
+            }
+        });
+    }
+
+    const updateItem = () => {
+        setIsPopUpOpen(true);
+        setPopupInfo({
+            ...editItemPopup(categoryData ? categoryData.filter((category: ICategory) => category.type === Active) : []),
+            onSubmit: async (data: IItem) => {
+                try {
+                    await updateData(ItemAPI_URL, currentId.current, {
+                        name: data.name,
+                        price: data.price,
+                        description: data.description,
+                        imageUrl: data.imageUrl,
+                        categoryId: data.categoryId
+                    });
+                    setMessageProps({
+                        ...updateSuccessMessage("item"),
+                        isVisible: MessageProps.isVisible + 1,
+                    });
+                    setIsPopUpOpen(false);
+                    await refetchItems();
+                } catch (err) {
+                    setMessageProps({
+                        ...updateErrorMessage("item"),
+                        isVisible: MessageProps.isVisible + 1,
+                    });
+                    setIsPopUpOpen(false);
+                }
+            },
+        });
+    }
     return (
         <>
             <div className={style.dashboard}>
                 <AccountSummary />
-                <Message isVisible={showMessage} message={messageStatus} messageDetails={messageDetails} />
+                <Message isVisible={MessageProps.isVisible} message={MessageProps.status} messageDetails={MessageProps} />
                 <PopUp select={popupInfo.select} content={popupInfo.content} options={popupInfo.options} confirmClick={async () => await popupInfo.confirmClick?.()} onSubmit={async (data: IFormData) => await popupInfo.onSubmit?.(data)} title={popupInfo.title} labels={popupInfo.labels} closemodal={ClosePopup} status={isPopUpOpen} input={popupInfo.input} type={popupInfo.type} />
                 <div className={style.itemsContainer}>
                     <div className={style.tabs}>
@@ -258,42 +232,26 @@ function Dashboard() {
                     <div className={style.categoryTable}>
                         <h2>Category   <Button onClick={() => createNewCategory()} variant="add" size="medium">Add+</Button></h2>
                         <div className={style.tableWrapper}>
-                            <table className={style.table}>
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Category</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
 
-                                <tbody>
-                                    {isloading ? (
-                                        <>
-                                            <tr><td colSpan={3}>Loading...</td></tr>
-                                        </>
-                                    ) : error ? (
-                                        <>
-                                            <tr><td colSpan={3}>{error}</td></tr>
-                                        </>
-                                    ) : (
-                                        <>
-                                            {categories.filter((category) => category.type === Active).map((category, index) => (
-                                                <tr key={category.id} >
-                                                    <td>{index + 1}</td>
-                                                    <td>{category.name}</td>
-                                                    <td>
-                                                        <div className={style.actionButton}>
-                                                            <Button onClick={() => { updateCategory(); currentId.current = category.id; setPopupInfo(prev => ({ ...prev, input: category.name, type: Active })) }} variant="edit" size="small">Edit</Button>
-                                                            <Button onClick={() => { deleteCategory(); currentId.current = category.id; setPopupInfo(prev => ({ ...prev, input: category.name, type: Active })) }} variant="delete" size="small">Delete</Button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </>
-                                    )}
-                                </tbody>
-                            </table>
+
+
+                            <Table<ICategory> size="xs" data={categoryData ? categoryData : []} columns={[
+                                { header: "ID", render: (_row: ICategory, rowIndex: number) => (rowIndex + 1), textalignment: "center", headerAlignment: "center" },
+                                { header: "Name", accessor: "name", textalignment: "center", headerAlignment: "center" },
+                                {
+                                    header: "Actions", render: (row: ICategory) => (
+                                        <div className={style.actionButton}>
+                                            <Button onClick={() => { updateCategory(); currentId.current = row.id!; setPopupInfo(prev => ({ ...prev, input: { name: row.name }, type: Active })) }} variant="edit" size="small">Edit</Button>
+                                            <Button onClick={() => { deleteCategory(); currentId.current = row.id!; setPopupInfo(prev => ({ ...prev, input: { name: row.name }, type: Active })) }} variant="delete" size="small">Delete</Button>
+                                        </div>
+                                    ), textalignment: "left", headerAlignment: "center"
+                                },
+
+                            ]
+                            }
+                            />
+                            {categoryLoading && <p>Loading categories...</p>}
+                            {categoryError && <p className={style.error}>Error loading categories: {categoryError.message}</p>}
                         </div>
                     </div>
                     <div className={style.itemsTable}>
@@ -304,55 +262,33 @@ function Dashboard() {
                         </div>
                         <div className={style.filterOptions}>
                             <Button onClick={() => setActiveFilter(() => "All")} variant="filter" size="small" className={activeFilter === "All" ? style.activeFilter : ""}>All</Button>
-                            {categories.filter((category) => category.type === Active).map((category) => (
-                                <Button key={category.id} onClick={() => setActiveFilter(() => category.name)} className={activeFilter === category.name ? style.activeFilter : ""} variant="filter" size="small" >{category.name}</Button>
-                            ))}
+                            {categoryData ? categoryData.filter((category) => category.type === Active).map((category) => (
+                                <Button key={category.id} onClick={() => { setActiveFilter(() => category.name!); console.log("KLIKNUO SI NA: " + category.name) }} className={activeFilter === category.name ? style.activeFilter : ""} variant="filter" size="small" >{category.name}</Button>
+                            )) : null}
                         </div>
                         <div className={style.tableWrapper}>
-                            <table className={style.table}>
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Image</th>
-                                        <th>Name</th>
-                                        <th>Category</th>
-                                        <th>Description</th>
-                                        <th>Price</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
 
-                                <tbody>
-                                    {isloading ? (
-                                        <>
-                                            <tr><td colSpan={7}>Loading...</td></tr>
-                                        </>
-                                    ) : error ? (
-                                        <>
-                                            <tr><td colSpan={7}>{error}</td></tr>
-                                        </>
-                                    ) : (
-                                        <>
-                                            {items.map((item, index) => (
-                                                <tr key={item.id} >
-                                                    <td>{index + 1}</td>
-                                                    <td> <img src={item.imageUrl} alt={item.name} /></td>
-                                                    <td>{item.name}</td>
-                                                    <td>{item.categoryId}</td>
-                                                    <td>{item.description}</td>
-                                                    <td>{item.price}</td>
-                                                    <td>
-                                                        <div className={style.actionButton}>
-                                                            <Button onClick={() => { updateCategory(); currentId.current = item.id; setPopupInfo(prev => ({ ...prev, input: item.name, type: Active })) }} variant="edit" size="small">Edit</Button>
-                                                            <Button onClick={() => { deleteCategory(); currentId.current = item.id; setPopupInfo(prev => ({ ...prev, input: item.name, type: Active })) }} variant="delete" size="small">Delete</Button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </>
-                                    )}
-                                </tbody>
-                            </table>
+                            <Table<IItem> size="l" data={itemData ? filterItemsByActiveType(itemData, categoryData, Active) : []} columns={[
+                                { header: "ID", render: (_row: IItem, rowIndex: number) => (rowIndex + 1), textalignment: "center", headerAlignment: "center" },
+                                { header: "Image", render: (row: IItem) => <img src={row.imageUrl} alt={row.name} />, textalignment: "center", headerAlignment: "center" },
+                                { header: "Name", accessor: "name", textalignment: "center", headerAlignment: "center" },
+                                { header: "Category", accessor: "categoryName", textalignment: "center", headerAlignment: "center" },
+                                { header: "Description", accessor: "description", textalignment: "left", headerAlignment: "center" },
+                                { header: "Price", render: (row: IItem) => <span>{row.price} BAM</span>, textalignment: "center", headerAlignment: "center" },
+                                {
+                                    header: "Actions", render: (row: IItem) => (
+                                        <div className={style.actionButton}>
+                                            <Button onClick={() => { updateItem(); currentId.current = row.id!; setPopupInfo(prev => ({ ...prev, select: categoryData ? categoryData.filter(c => c.type === Active) : [], input: { name: row.name, description: row.description, price: row.price, imageUrl: row.imageUrl, categoryId: row.categoryId ?? categoryData?.find(c => c.name === row.categoryName)?.id }, type: Active })) }} variant="edit" size="small">Edit</Button>
+                                            <Button onClick={() => { deleteItem(); currentId.current = row.id!; setPopupInfo(prev => ({ ...prev, input: { name: row.name }, type: Active })) }} variant="delete" size="small">Delete</Button>
+                                        </div>
+                                    ), textalignment: "left", headerAlignment: "center"
+                                }
+
+                            ]
+                            }
+                            />
+                            {itemLoading && <p>Loading items...</p>}
+                            {itemError && <p className={style.error}>Error loading items: {itemError.message}</p>}
                         </div>
 
 

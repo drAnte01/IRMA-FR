@@ -1,0 +1,75 @@
+/* Table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    color: white;
+}
+
+.tableWrapper {
+    max-height: 300px;
+    min-height: 300px;
+    overflow-y: auto;
+}
+
+.table thead {
+    background-color: #1f2a36 !important;
+}
+
+.table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #1f2a36;
+    z-index: 10 !important;
+}
+
+.table th,
+.table td {
+    padding: 12px 14px;
+    text-align: left;
+}
+
+.table th {
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #3a4b5c;
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #34495e;
+}
+
+
+/* Wrapper za tabelu */
+.xs {
+    width: 30%;
+
+}
+
+.s {
+    width: 50%;
+
+}
+
+.xm {
+    width: 60%;
+}
+
+.m {
+    width: 70%;
+
+}
+
+.xl {
+    width: 80%;
+
+}
+
+.l {
+    width: 100%;
+
+}

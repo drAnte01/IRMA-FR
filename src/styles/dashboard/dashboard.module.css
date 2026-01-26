@@ -4,7 +4,6 @@
     color: white;
 }
 
-
 /*items container*/
 .itemsContainer {
     /*background-color: #2c3e50;*/
@@ -50,7 +49,7 @@
 
 /*CategoryTable*/
 .categoryTable {
-    padding: 20px;
+    margin-bottom: 50px;
     border-radius: 8px;
 }
 
@@ -71,76 +70,14 @@
     overflow-y: auto;
 }
 
-.table thead {
-    background-color: #1f2a36 !important;
-}
-
-.table thead th {
-    position: sticky;
-    top: 0;
-    background-color: #1f2a36;
-    z-index: 10 !important;
-}
-
-.table th,
-.table td {
-    padding: 12px 14px;
-    text-align: left;
-}
-
-.table th {
-    font-size: 14px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.table tbody tr {
-    border-bottom: 1px solid #3a4b5c;
-    transition: background-color 0.2s ease;
-}
-
-.table tbody tr:hover {
-    background-color: #34495e;
-}
-
 /* Actions */
-
-
 .actionButton {
     display: flex;
+    justify-content: center;
     gap: 10px;
 }
 
-/* Buttons */
-.editBtn {
-    background-color: #3498db;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.editBtn:hover {
-    background-color: #2980b9;
-}
-
-.deleteBtn {
-    background-color: #e74c3c;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.deleteBtn:hover {
-    background-color: #c0392b;
-}
-
-/*scroll track  */
+/* remove scroll track on tableWrapper */
 .tableWrapper::-webkit-scrollbar {
     display: none;
 }
@@ -161,7 +98,6 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-
     text-transform: capitalize;
     width: 260px;
     padding: 8px 14px;
@@ -170,7 +106,6 @@
     background-color: #1f2229;
     color: #ffffff;
     font-size: 15px;
-
     outline: none;
     transition: all 0.25s ease;
 }
@@ -195,6 +130,7 @@
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 /* Filter dugme */
@@ -209,18 +145,12 @@ button {
     text-transform: capitalize;
 }
 
-/* Stilizacija slike u tabeli */
+/* stilization image in table */
 .itemsTable td img {
     width: 60px;
-    /* maksimalna širina slike */
     height: 60px;
-    /* maksimalna visina slike */
     object-fit: cover;
-    /* prilagođava sliku u box, bez deformacije */
     border-radius: 5px;
-    /* blago zaobljenje ivica */
     display: block;
-    /* uklanja inline spacing */
     margin: 0 auto;
-    /* centriranje u ćeliji */
 }

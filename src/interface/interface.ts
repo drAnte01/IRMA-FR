@@ -1,19 +1,32 @@
 export interface ICategory {
+  id?: number;
   name?: string;
   type?: "food" | "drink";
 }
 
 export type IItem = {
+  id?: number;
   name?: string;
   categoryId?: number;
+  categoryName?: string;
   description?: string;
   price?: number;
   imageUrl?: string;
+  select?: any[];
 };
 
+//mozda i ne treba
 export type IMessage = {
   title: string;
   content: string;
+};
+
+export type IInput = {
+  name?: string;
+  description?: string;
+  price?: number;
+  imageUrl?: string;
+  categoryId?: string | number;
 };
 
 export type IPopUp = {
@@ -26,7 +39,7 @@ export type IPopUp = {
     price?: string;
     imageUrl?: string;
   };
-  input?: string;
+  input?: IInput;
   onSubmit?: (data: IFormData) => void | Promise<void>;
   confirmClick?: () => Promise<void>;
   options?: string[];
@@ -35,6 +48,7 @@ export type IPopUp = {
 };
 
 export type IFormData = {
+  id?: number;
   name?: string;
   type?: "food" | "drink";
   description?: string;

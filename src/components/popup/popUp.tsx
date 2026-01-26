@@ -1,6 +1,7 @@
 import style from "../../styles/dashboard/popUp.module.css";
-import type { IFormData } from "../../interface/interface";
+import type { IFormData, IInput } from "../../interface/interface";
 import React, { useState, useEffect } from "react";
+import { text } from "@fortawesome/fontawesome-svg-core";
 
 type PopUpProps = {
     onSubmit?: (onSubmit: IFormData) => void,
@@ -9,7 +10,7 @@ type PopUpProps = {
     title?: string;
     type?: "food" | "drink";
     labels?: { name?: string, type?: string, description?: string, price?: string, imageUrl?: string };
-    input?: string;
+    input?: IInput;
     status?: boolean;
     options?: string[];
     content?: string;
@@ -40,6 +41,7 @@ function PopUp({ content, options, confirmClick, onSubmit, closemodal, title, ty
             categoryId: formData.get("categoryId") ? Number(formData.get("categoryId")) : undefined,
             imageUrl: formData.get("imageUrl") as string,
         }
+        console.log(data);
         if (onSubmit)
             onSubmit(data)
     }
@@ -55,27 +57,27 @@ function PopUp({ content, options, confirmClick, onSubmit, closemodal, title, ty
                         {labels && (<div className={style.popupContent}>
                             <form onSubmit={handleSubmit}>
                                 <label>{labels?.name}</label>
-                                <input type="text" name="name" defaultValue={input} required />
+                                <input type="text" name="name" defaultValue={input?.name} required />
 
                                 <label>{labels?.type}</label>
                                 {type && (<input type="text" name="type" readOnly value={type} />)}
-                                <select name="categoryId" defaultValue="" required>
+                                { select && (<select name="categoryId" defaultValue={input?.categoryId ?? ""} required>
                                     <option value="" disabled>Odaberi kategoriju</option>
                                     {select?.map((item) => (
                                         <option key={item.id} value={item.id}>{item.name}</option>
                                     ))}
-                                </select>
+                                </select>)}
                                 <label>{labels?.description}</label>
                                 {labels.description && (<textarea
                                     id="description"
                                     name="description"
-                                    defaultValue={input}
+                                    defaultValue={input?.description}
                                     required
                                 />)}
                                 {labels.imageUrl && (<label>{labels?.imageUrl}</label>)}
-                                {labels.imageUrl && (<input type="text" name="imageUrl" id="imageUrl" required placeholder="Image URL" />)}
+                                {labels.imageUrl && (<input defaultValue={input?.imageUrl} type="text" name="imageUrl" id="imageUrl" required placeholder="Image URL" />)}
                                 {labels.price && (<label>{labels?.price}</label>)}
-                                {labels.price && (<div className={style.priceInput}> <input type="number" name="price" id="price" required placeholder="0" /><p>BAM</p> </div>)}
+                                {labels.price && (<div className={style.priceInput}> <input defaultValue={input?.price} type="number" name="price" id="price" required placeholder="0" /><p>BAM</p> </div>)}
 
                                 <button type="submit">Save</button>
                             </form>

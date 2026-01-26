@@ -3,11 +3,11 @@
 import axios from "axios";
 import type { IItem } from "../interface/interface";
 
-const API_URL = "http://localhost:5000/api/Item";
+const ItemAPI_URL = "http://localhost:5000/api/Item";
 
 const getAllItems = async () => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(ItemAPI_URL);
     return response.data;
   } catch (error) {
     console.error("Error fetching items:", error);
@@ -16,7 +16,7 @@ const getAllItems = async () => {
 };
 const CreateItem = async (itemData: IItem) => {
   try {
-    const response = await axios.post(API_URL, itemData);
+    const response = await axios.post(ItemAPI_URL, itemData);
     return response.data;
   } catch (error) {
     console.error("Error creating item:", error);
@@ -25,7 +25,7 @@ const CreateItem = async (itemData: IItem) => {
 };
 const DeleteItem = async (id: number) => {
   try {
-    const deleted = await axios.delete(`${API_URL}/${id}`);
+    const deleted = await axios.delete(`${ItemAPI_URL}/${id}`);
     return deleted.data;
   } catch (error) {
     console.error("Error deleting item:", error);
@@ -35,7 +35,7 @@ const DeleteItem = async (id: number) => {
 
 const UpdateItem = async (id: number, itemData: IItem) => {
   try {
-    const update = await axios.put(`${API_URL}/${id}`, itemData);
+    const update = await axios.put(`${ItemAPI_URL}/${id}`, itemData);
     return update.data;
   } catch (error) {
     console.log("Item id: " + id);
@@ -56,4 +56,4 @@ const UpdateItem = async (id: number, itemData: IItem) => {
   }
 };
 
-export { getAllItems, CreateItem, DeleteItem, UpdateItem };
+export { ItemAPI_URL, getAllItems, CreateItem, DeleteItem, UpdateItem };
