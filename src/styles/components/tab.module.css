@@ -1,0 +1,26 @@
+.tab {
+    padding: 12px 24px;
+    margin: 0 10px;
+    cursor: pointer;
+    color: white;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab h2 {
+    margin: 0;
+    font-size: 16px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 400;
+}
+
+.tab:hover {
+    color: #fff;
+    border-bottom: 2px solid rgb(100, 100, 100);
+
+}
+
+.tab.active {
+    color: #fff;
+    border-bottom: 2px solid #ff9900;
+}

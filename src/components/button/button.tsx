@@ -1,6 +1,6 @@
 //components/dashboard/button.tsx
 
-import style from "../../styles/dashboard/button.module.css";
+import style from "../../styles/components/button.module.css";
 
 type ButtonProps = {
     onClick?: () => void;

@@ -1,4 +1,5 @@
 // components/template/popupTemplates.ts
+import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import type { ICategory } from "../../interface/interface";
 
 //CATEGORY POPUPS
@@ -45,4 +46,22 @@ export const editItemPopup = (categories: ICategory[],) => ({
     imageUrl: "Image URL",
   },
   select: categories ,
+});
+
+//STAFF POPUPS
+// prettier-ignore
+export const createNewStaffPopup = () => ({
+  title: "Add new Staff Member",
+  labels: {
+    phone: "Phone",
+    adress: "Adress",
+    Fname: "First Name",
+    Lname: "Last Name",
+    email: "Email",
+    username: "Username",
+    password: "Password",
+    typeStaff: "Staff Type",
+    dateOfBirth: "Date of Birth",
+    image: "Image URL",
+  },
 });

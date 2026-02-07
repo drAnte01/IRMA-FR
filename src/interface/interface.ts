@@ -15,6 +15,20 @@ export type IItem = {
   select?: any[];
 };
 
+export type IStaff = {
+  id?: number;
+  Fname?: string;
+  Lname?: string;
+  email?: string;
+  username?: string;
+  password?: string;
+  typeStaff?: string;
+  dateOfBirth?: string;
+  image?: string;
+  phone?: string;
+  adress?: string;
+};
+
 //mozda i ne treba
 export type IMessage = {
   title: string;
@@ -27,7 +41,35 @@ export type IInput = {
   price?: number;
   imageUrl?: string;
   categoryId?: string | number;
+  Fname?: string;
+  Lname?: string;
+  email?: string;
+  username?: string;
+  password?: string;
+  typeStaff?: string;
+  dateOfBirth?: string;
+  image?: string;
+  adress?: string;
+  phone?: string;
 };
+
+export interface ILabels {
+  name?: string;
+  type?: string;
+  description?: string;
+  price?: string;
+  imageUrl?: string;
+  Fname?: string;
+  Lname?: string;
+  email?: string;
+  username?: string;
+  password?: string;
+  typeStaff?: string;
+  dateOfBirth?: string;
+  image?: string;
+  adress?: string;
+  phone?: string;
+}
 
 export type IPopUp = {
   title?: string;
@@ -38,6 +80,16 @@ export type IPopUp = {
     description?: string;
     price?: string;
     imageUrl?: string;
+    Fname?: string;
+    Lname?: string;
+    email?: string;
+    username?: string;
+    password?: string;
+    typeStaff?: string;
+    dateOfBirth?: string;
+    image?: string;
+    adress?: string;
+    phone?: string;
   };
   input?: IInput;
   onSubmit?: (data: IFormData) => void | Promise<void>;
@@ -55,4 +107,14 @@ export type IFormData = {
   categoryId?: number;
   price?: number;
   imageUrl?: string;
+  Fname?: string;
+  Lname?: string;
+  email?: string;
+  username?: string;
+  password?: string;
+  dateOfBirth?: string;
+  image?: string;
+  typeStaff?: string;
+  adress?: string;
+  phone?: string;
 };

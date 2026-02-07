@@ -10,10 +10,6 @@ body {
 }
 
 /* form.module.css */
-:global(input[type="number"]) {
-  width: 25%;
-  -moz-appearance: textfield;
-}
 
 :global(input[type="number"]::-webkit-outer-spin-button),
 :global(input[type="number"]::-webkit-inner-spin-button) {

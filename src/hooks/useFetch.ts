@@ -10,7 +10,6 @@ export function useFetch<T>(
   error: Error | null;
   refetch: () => Promise<void>; // dodamo refetch
 } {
-  console.log("useFetch activeType aaaaa: " + activeType);
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);

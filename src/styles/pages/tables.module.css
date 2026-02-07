@@ -1,0 +1,16 @@
+
+.table{
+    position: relative;
+    margin-left: 20%;
+}
+
+.tableWrapper {
+    position:absolute;
+    width: 100%;
+    height: 100dvh; /* ili 100dvh za precizniji mobile */
+    display: flex;
+    justify-content: center; /* horizontalno centriranje */
+    align-items: center;     /* vertikalno centriranje */
+    overflow: hidden;
+}
+

@@ -1,7 +1,7 @@
 //hooks/useDelete.ts
 
 import { useState } from "react";
-import { Delete } from "../api/category";
+import { Delete } from "../api/API";
 
 export function useDelete() {
   const [loading, setLoading] = useState<boolean>(false);

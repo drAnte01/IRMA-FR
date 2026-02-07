@@ -1,6 +1,6 @@
 //hooks/useUpdate.ts
 import { useState } from "react";
-import { Update } from "../api/category";
+import { Update } from "../api/API";
 
 export function useUpdate<T>() {
   const [loading, setLoading] = useState<boolean>(false);

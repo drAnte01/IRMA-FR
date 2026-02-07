@@ -1,6 +1,6 @@
 //components/dashboard/accountSummary.tsx
 
-import style from "../../styles/dashboard/accountSummary.module.css";
+import style from "../../styles/components/accountSummary.module.css";
 
 function AccountSummary() {
     return (

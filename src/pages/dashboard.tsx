@@ -1,24 +1,25 @@
 //pages/dashboard.tsx
-import style from "../styles/dashboard/dashboard.module.css";
+import style from "../styles/pages/dashboard.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUtensils, faMartiniGlassCitrus } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
 import AccountSummary from "../components/accountSummary/accountSummary";
 import Button from "../components/button/button";
-import { CategoryAPI_URL } from "../api/category";
-import { ItemAPI_URL } from "../api/item";
+import { CategoryAPI_URL, ItemAPI_URL } from "../api/API";
 import PopUp from "../components/popup/popUp";
 import Message from "../components/Ui/Mesage";
-import type { ICategory, IFormData, IItem, IPopUp } from "../interface/interface";
+import type { ICategory, IFormData, IItem, IPopUp, IStaff } from "../interface/interface";
 import Table from "../components/table/table";
 import { useFetch } from "../hooks/useFetch";
 import { useCreate } from "../hooks/useCreate";
 import { useDelete } from "../hooks/useDelete";
 import { useUpdate } from "../hooks/useUpdate";
-import { createNewCategoryPopup, editCategoryPopup, createNewItemPopup, editItemPopup } from "../components/template/popupTemplates";
+import { createNewCategoryPopup, editCategoryPopup, createNewItemPopup, editItemPopup, createNewStaffPopup } from "../components/template/popupTemplates";
 import { confirmMessage, deleteErrorMessage, deleteSuccessMessage, errorMessage, successMessage, updateErrorMessage, updateSuccessMessage } from "../components/template/messageTemplates";
 import { filterItemsByActiveType } from "../help/customFunctions";
+import Tab from "../components/tab/tab";
+import "../App.css"
 
 library.add(faUtensils, faMartiniGlassCitrus);
 
@@ -36,7 +37,7 @@ function Dashboard() {
     const [popupInfo, setPopupInfo] = useState<IPopUp>({
         title: "",
         type: Active,
-        labels: { name: "", type: "", description: "", price: "", imageUrl: "" },
+        labels: { name: "", type: "", description: "", price: "", imageUrl: "", phone: "", adress: "" },
         onSubmit: undefined,
         confirmClick: undefined,
         options: [""],
@@ -217,19 +218,59 @@ function Dashboard() {
             },
         });
     }
+
+
+    /* >>> CRUD OPERATIONS FOR STAFF <<< */
+    const createStaffMember = () => {
+        setIsPopUpOpen(true);
+        setPopupInfo({
+            ...createNewStaffPopup(),
+            onSubmit: async (data: IStaff) => {
+                if (data.Fname && data.Lname && data.email && data.username && data.password && data.typeStaff && data.dateOfBirth) {
+                    try {
+                        await createNewData("StaffAPI_URL", {
+                            Fname: data.Fname,
+                            Lname: data.Lname,
+                            email: data.email,
+                            username: data.username,
+                            password: data.password,
+                            typeStaff: data.typeStaff,
+                            dateOfBirth: data.dateOfBirth,
+                            image: data.image,
+                            phone: data.phone,
+                            adress: data.adress,
+                        });
+                        setMessageProps({
+                            ...successMessage("staff member"),
+                            isVisible: MessageProps.isVisible + 1,
+                        });
+                        setIsPopUpOpen(false);
+                        await refetchCategories(); // TREBA PROMJENITI DA PRIKAZUJE STAFF UMJESTO CATEGORY
+                    } catch (err) {
+                        setMessageProps({
+                            ...errorMessage("staff member"),
+                            isVisible: MessageProps.isVisible + 1,
+                        });
+                        setIsPopUpOpen(false);
+                    }
+                }
+            }
+        });
+
+    }
     return (
         <>
-            <div className={style.dashboard}>
+            <div className="dashboard">
                 <AccountSummary />
                 <Message isVisible={MessageProps.isVisible} message={MessageProps.status} messageDetails={MessageProps} />
                 <PopUp select={popupInfo.select} content={popupInfo.content} options={popupInfo.options} confirmClick={async () => await popupInfo.confirmClick?.()} onSubmit={async (data: IFormData) => await popupInfo.onSubmit?.(data)} title={popupInfo.title} labels={popupInfo.labels} closemodal={ClosePopup} status={isPopUpOpen} input={popupInfo.input} type={popupInfo.type} />
                 <div className={style.itemsContainer}>
                     <div className={style.tabs}>
-                        <div className={`${style.tab} ${Active === "food" ? style.active : ""}`} onClick={() => { setActive("food") }}><h2><FontAwesomeIcon icon={faUtensils}></FontAwesomeIcon> Food</h2></div>
-                        <div className={`${style.tab} ${Active === "drink" ? style.active : ""}`} onClick={() => { setActive("drink") }}><h2><FontAwesomeIcon icon={faMartiniGlassCitrus}></FontAwesomeIcon> Drink</h2></div>
+                        <Tab value="food" onclick={() => setActive("food")} active={Active}><FontAwesomeIcon icon={faUtensils}></FontAwesomeIcon> Food</Tab>
+                        <Tab value="drink" onclick={() => setActive("drink")} active={Active}><FontAwesomeIcon icon={faMartiniGlassCitrus}></FontAwesomeIcon> Drink</Tab>
                     </div>
 
-                    <div className={style.categoryTable}>
+                    <div className={style.categorySection}>
                         <h2>Category   <Button onClick={() => createNewCategory()} variant="add" size="medium">Add+</Button></h2>
                         <div className={style.tableWrapper}>
 
@@ -254,7 +295,7 @@ function Dashboard() {
                             {categoryError && <p className={style.error}>Error loading categories: {categoryError.message}</p>}
                         </div>
                     </div>
-                    <div className={style.itemsTable}>
+                    <div className={style.itemsSection}>
                         <div className={style.itemsNavigationBar}>
                             <h2>Items </h2>
                             <Button onClick={() => createNewItem()} variant="add" size="medium">Add</Button>
@@ -290,9 +331,32 @@ function Dashboard() {
                             {itemLoading && <p>Loading items...</p>}
                             {itemError && <p className={style.error}>Error loading items: {itemError.message}</p>}
                         </div>
-
-
                     </div>
+                    <div className={style.staffSection}>
+                        <h2>Staff members <Button onClick={() => createStaffMember()} variant="add" size="medium">Add+</Button></h2>
+                        <div className={style.tableWrapper}>
+
+                            <Table<IItem> size="l" data={itemData ? filterItemsByActiveType(itemData, categoryData, Active) : []} columns={[
+                                { header: "ID", render: (_row: IItem, rowIndex: number) => (rowIndex + 1), textalignment: "center", headerAlignment: "center" },
+                                { header: "Name", accessor: "name", textalignment: "center", headerAlignment: "center" },
+                                { header: "Username", accessor: "name", textalignment: "center", headerAlignment: "center" },
+                                {
+                                    header: "Actions", render: (row: IItem) => (
+                                        <div className={style.actionButton}>
+                                            <Button onClick={() => { updateItem(); currentId.current = row.id!; setPopupInfo(prev => ({ ...prev, select: categoryData ? categoryData.filter(c => c.type === Active) : [], input: { name: row.name, description: row.description, price: row.price, imageUrl: row.imageUrl, categoryId: row.categoryId ?? categoryData?.find(c => c.name === row.categoryName)?.id }, type: Active })) }} variant="edit" size="small">Edit</Button>
+                                            <Button onClick={() => { deleteItem(); currentId.current = row.id!; setPopupInfo(prev => ({ ...prev, input: { name: row.name }, type: Active })) }} variant="delete" size="small">Delete</Button>
+                                        </div>
+                                    ), textalignment: "left", headerAlignment: "center"
+                                }
+
+                            ]
+                            }
+                            />
+                            {itemLoading && <p>Loading items...</p>}
+                            {itemError && <p className={style.error}>Error loading items: {itemError.message}</p>}
+                        </div>
+                    </div>
+
                 </div>
             </div >
 

@@ -1,0 +1,87 @@
+/*styles/components/card.module.css*/
+
+.card {
+    width: 240px;
+    height: 320px;              /* sve kartice iste visine */
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background-color: #1f2229;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.35);
+}
+
+/* Slika kao pozadina */
+.image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+/* Ako nema slike */
+.imagePlaceholder {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #2b2e38, #1f2229);
+    z-index: 1;
+}
+
+/* Overlay sadržaj */
+.content {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.75),
+        rgba(0,0,0,0.3),
+        transparent
+    );
+    color: white;
+    z-index: 2;
+}
+
+/* Title */
+.title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Description */
+.description {
+    margin: 4px 0 8px 0;
+    font-size: 13px;
+    opacity: 0.85;
+}
+
+/* Price */
+.price {
+    font-size: 18px;
+    font-weight: bold;
+    color: #22c55e; /* zelena */
+}
+
+.card::before {
+    content: "NEW";
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #22c55e;
+    color: #0f172a;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: bold;
+    z-index: 3;
+}

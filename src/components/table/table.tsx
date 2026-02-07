@@ -1,5 +1,5 @@
 //dashboard/table.tsx
-import tableStyle from "../../styles/table/table.module.css";
+import tableStyle from "../../styles/components/table.module.css";
 
 type Column<T> = {
     header: string;

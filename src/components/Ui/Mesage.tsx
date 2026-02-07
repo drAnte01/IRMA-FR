@@ -1,6 +1,6 @@
 //components/Ui/message
 import { useEffect, useState } from "react";
-import style from "../../styles/Ui/message.module.css"
+import style from "../../styles/components/message.module.css";
 import type { IMessage } from "../../interface/interface"
 
 type MessageProp = {

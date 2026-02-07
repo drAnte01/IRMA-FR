@@ -1,0 +1,71 @@
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.filterSection {
+    display: flex;
+    align-items: center;
+}
+
+.filterOptions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+/* Filter dugme */
+.activeFilter {
+    background-color: #e68a00 !important;
+    color: white !important;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.activeFilter,
+button {
+    text-transform: capitalize;
+}
+
+/* search bar */
+.searchItems {
+    margin-left: 20px;
+}
+
+.searchItems input {
+    text-transform: capitalize;
+    width: 260px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 2px solid #2b2e38;
+    background-color: #1f2229;
+    color: #ffffff;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+/* placeholder */
+.searchItems input::placeholder {
+    color: #9ca3af;
+}
+
+/* hover */
+.searchItems input:hover {
+    border-color: #ff9900;
+}
+
+/* focus */
+.searchItems input:focus {
+    border-color: #ff9900;
+}
+
+
+/* card section */
+.cardSection {
+    display: flex;
+    gap: 15px;
+   
+}

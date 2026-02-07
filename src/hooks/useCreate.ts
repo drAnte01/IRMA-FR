@@ -1,6 +1,6 @@
 //hooks/create.ts
 import { useState } from "react";
-import { Create } from "../api/category";
+import { Create } from "../api/API";
 
 export function useCreate<T>() {
   const [loading, setLoading] = useState<boolean>(false);

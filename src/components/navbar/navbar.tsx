@@ -1,7 +1,7 @@
 // src/Components/navbar/navbar.tsx
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import style from "../../styles/navbar/navBar.module.css";
+import style from "../../styles/components/navBar.module.css";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faHome, faBook, faChair, faMartiniGlass, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { NavLink } from "react-router-dom";

@@ -89,15 +89,11 @@
   margin: 0;
   padding: 15px 20px;
   background-color: transparent;
-  /* tamni box iza teksta */
   color: #ffffff;
-  /* bijeli tekst */
   border-radius: 8px;
-  /* blago zaobljenje */
   font-size: 16px;
   font-weight: 500;
   text-align: center;
-  /* lagani shadow */
   transition: background-color 0.2s ease;
 }
 
@@ -137,7 +133,6 @@
   display: flex;
   justify-content: center;
   gap: 20px;
-  /* razmak između dugmadi */
   margin-top: 20px;
 }
 
@@ -187,15 +182,12 @@
   transition: border-color 0.2s;
   text-transform: capitalize;
   -webkit-appearance: none;
-  /* uklanja default strelicu u Safari/Chrome */
   -moz-appearance: none;
-  /* uklanja default strelicu u Firefox */
   appearance: none;
   width: 100%;
-  /* opcionalno, da select zauzme cijelu širinu */
-}
+  }
 
-/* Kada je fokusiran */
+/* Ka  je fokusiran */
 .popupContent select:focus {
   border-color: #61d9fa;
 }
@@ -226,4 +218,46 @@ input[name="price"] {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* Staff-specific wide popup and two-column form */
+.staffPopup {
+  max-width: 760px;
+  width: 95%;
+  padding: 30px;
+}
+
+.staffGrid form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+  align-items: start;
+}
+
+.staffField {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make certain elements span both columns */
+.staffGrid form textarea,
+.staffGrid form .priceInput,
+.staffGrid form button,
+.staffGrid form select {
+  grid-column: 1 / -1;
+}
+
+/* Ensure labels inside staffField keep normal style */
+.staffField label {
+  margin-bottom: 6px;
+  color: #ccc;
+}
+
+.staffField input {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background-color: #2b2e38;
+  color: white;
+  font-size: 16px;
 }
