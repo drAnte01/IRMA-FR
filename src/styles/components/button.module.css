@@ -52,6 +52,17 @@
     background-color: #219150;
 }
 
+.pay {
+    background-color:#219150;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+    max-height: 35px;
+}
+
 .filter {
     padding: 6px 16px;
     background-color: rgb(240, 240, 240);
@@ -86,4 +97,11 @@
     font-weight: 500;
     padding: 6px 14px;
     font-size: 14px;
+}
+
+.large {
+    padding: 8px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
 }

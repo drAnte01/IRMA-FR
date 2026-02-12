@@ -29,6 +29,15 @@ export type IStaff = {
   adress?: string;
 };
 
+export type IOrder = {
+  id?: number;
+  table?: string;
+  ItemName?: string;
+  Quantity?: number;
+  TotalPrice?: number;
+  OrderDate?: string;
+}
+
 //mozda i ne treba
 export type IMessage = {
   title: string;

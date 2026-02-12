@@ -1,5 +1,6 @@
 //hooks/useFetch.ts
 import { useState, useEffect } from "react";
+import { Fetch } from "../api/API";
 
 export function useFetch<T>(
   url: string,
@@ -17,10 +18,8 @@ export function useFetch<T>(
   const fetchData = async () => {
     setLoading(true);
     try {
-      const endpoint = activeType === "All" ? url : `${url}/filter/${activeType}`;
-      const response = await fetch(endpoint);
-      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-      const result: T = await response.json();
+      const endpoint = activeType === "All" ? url : `${url}/filter/${activeType}`; // problem je ovdje
+      const result = await Fetch<T>(endpoint);
       setData(result);
     } catch (err) {
       setError(err as Error);
@@ -36,35 +35,3 @@ export function useFetch<T>(
   return { data, loading, error, refetch: fetchData }; // vraćamo refetch
 }
 
-/*
-// A custom hook for fetching data from an API
-export function useFetch<T>(url: string): {
-  data: T | null;
-  loading: boolean;
-  error: Error | null;
-} {
-  const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
-        }
-        const result: T = await response.json();
-        setData(result);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [url]);
-
-  return { data, loading, error };
-}*/

@@ -5,7 +5,7 @@ import style from "../../styles/components/button.module.css";
 type ButtonProps = {
     onClick?: () => void;
     children: React.ReactNode;
-    variant?: "add" | "edit" | "delete" | "success" | "error" | "submit" | "filter";
+    variant?: "add" | "edit" | "delete" | "success" | "error" | "submit" | "filter" | "pay";
     size?: "small" | "medium" | "large";
     className?: string;
 };
