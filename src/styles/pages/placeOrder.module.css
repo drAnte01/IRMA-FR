@@ -40,8 +40,7 @@
 }
 
 /*BILL*/
-.orderSummary
-{
+.orderSummary {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -59,59 +58,53 @@
     border-radius: 10px;
 }
 
-.orderHeader
-{
+.orderHeader {
+    padding: 20px;
+    letter-spacing: 1px;
     height: 20%;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: left;
     border-bottom: 2px solid #1f1f1f;
 }
 
-.orderBody
-{
+.orderBody {
     padding: 20px;
     height: 50%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     border-bottom: 2px solid #1f1f1f;
+}
 
-}   
-
-.orderFooter
-{
+.orderFooter {
     height: 30%;
     padding: 0px 20px;
 }
 
-.orderTitle
-{
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+.orderTitle {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     letter-spacing: 1px;
     text-align: left;
     text-transform: capitalize;
     color: #e7e7e7;
 }
 
-.priceDetails
-{
+.priceDetails {
     height: 60%;
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     letter-spacing: 1px;
     width: 100%;
 }
 
-.row
-{
+.row {
     color: rgb(173, 173, 173);
     display: flex;
     justify-content: space-between;
     padding: 10px 0px;
 }
 
-.actionSection
-{
+.actionSection {
     height: 40%;
     width: 100%;
     display: flex;
@@ -121,10 +114,36 @@
     gap: 5px;
 }
 
-.button
-{
+.button {
     height: 100%;
     width: 100%;
     display: flex;
     justify-content: center;
+}
+
+.orderItem {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #1f1f1f;
+    padding: 20px;
+    margin: 10px 0px;
+    border-radius: 10px;
+}
+
+.orderRow {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0px;
+}
+
+.orderItems {
+    overflow-y: auto; /* scroll radi, ali */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+}
+
+.orderItems::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
 }

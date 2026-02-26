@@ -16,7 +16,7 @@ function App() {
         <Route path="/items" element={<Items />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/tables/" element={<Tables />} />
-        <Route path="/tables/:tableId" element={<PlaceOrder />} />
+        <Route path="/tables/:tableName" element={<PlaceOrder />} />
       </Routes>
 
     </>

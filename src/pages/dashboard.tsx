@@ -6,7 +6,7 @@ import { faUtensils, faMartiniGlassCitrus } from "@fortawesome/free-solid-svg-ic
 import { useEffect, useRef, useState } from "react";
 import AccountSummary from "../components/accountSummary/accountSummary";
 import Button from "../components/button/button";
-import { CategoryAPI_URL, ItemAPI_URL } from "../api/API";
+import { CategoryAPI_URL, ItemAPI_URL, GetCategories, GetItems } from "../help/enpoints";
 import PopUp from "../components/popup/popUp";
 import Message from "../components/Ui/Mesage";
 import type { ICategory, IFormData, IItem, IPopUp, IStaff } from "../interface/interface";
@@ -26,8 +26,8 @@ library.add(faUtensils, faMartiniGlassCitrus);
 function Dashboard() {
     const [Active, setActive] = useState<"food" | "drink">("food");
     const [activeFilter, setActiveFilter] = useState<string>("All");
-    const { data: categoryData, loading: categoryLoading, error: categoryError, refetch: refetchCategories } = useFetch<ICategory[]>(`${CategoryAPI_URL}`, Active); // Fetch categories
-    const { data: itemData, loading: itemLoading, error: itemError, refetch: refetchItems } = useFetch<IItem[]>(`${ItemAPI_URL}`, activeFilter); // Fetch items
+    const { data: categoryData, loading: categoryLoading, error: categoryError, refetch: refetchCategories } = useFetch<ICategory[]>(GetCategories(CategoryAPI_URL, Active)); // Fetch categories
+    const { data: itemData, loading: itemLoading, error: itemError, refetch: refetchItems } = useFetch<IItem[]>(GetItems(ItemAPI_URL, activeFilter)); // Fetch items
     const { createNewData, loading: _creating, error: _createError } = useCreate<any>(); // Create 
     const { deleteData, loading: _deleting, error: _deleteError } = useDelete();   // Delete
     const { updateData, loading: _updating, error: _updateError } = useUpdate<any>(); // Update

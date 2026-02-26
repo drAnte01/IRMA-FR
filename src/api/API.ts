@@ -1,10 +1,6 @@
 // src/api/API.ts
 
 import axios from "axios";
-
-const CategoryAPI_URL = "http://localhost:5000/api/Category";
-const ItemAPI_URL = "http://localhost:5000/api/Item";
-
 const Create = async <T>(url: string, data: T) => {
   try {
     const response = await axios.post(url, data);
@@ -25,7 +21,7 @@ const Delete = async (url: string, id: number) => {
   }
 };
 
-const Update = async<T>(url: string, id: number, Data: T) => {
+const Update = async <T>(url: string, id: number, Data: T) => {
   try {
     console.log("PUT request:", `${url}/${id}`, Data);
     const update = await axios.put(`${url}/${id}`, Data);
@@ -40,10 +36,11 @@ const Fetch = async <T>(url: string): Promise<T | null> => {
   try {
     const response = await axios.get<T>(url);
     return response.data;
-  } catch (error) {
-    console.error("Error fetching data:", error);
+  } catch (error: any) {
+    console.log("STATUS:", error.response?.status);
+    console.log("BACKEND SAYS:", error.response?.data);
     throw error;
   }
 };
 
-export { CategoryAPI_URL, ItemAPI_URL /*getAllCategories*/, Create, Delete, Update, Fetch };
+export { Create, Delete, Update, Fetch };

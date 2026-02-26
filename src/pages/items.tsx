@@ -6,7 +6,7 @@ import { useState } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUtensils, faMartiniGlassCitrus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { CategoryAPI_URL, ItemAPI_URL } from "../api/API";
+import { CategoryAPI_URL, GetItems, ItemAPI_URL, GetCategories } from "../help/enpoints";
 import type { ICategory } from "../interface/interface";
 import { useFetch } from "../hooks/useFetch";
 import type { IItem } from "../interface/interface";
@@ -21,8 +21,8 @@ function Items() {
 
     const [activeFilter, setActiveFilter] = useState<string>("All");
     const [Active, setActive] = useState<"food" | "drink">("food");
-    const { data: categoryData, loading: categoryLoading, error: categoryError, refetch: refetchCategories } = useFetch<ICategory[]>(`${CategoryAPI_URL}`, Active); // Fetch categories
-    const { data: itemData, loading: itemLoading, error: itemError, refetch: refetchItems } = useFetch<IItem[]>(`${ItemAPI_URL}`, activeFilter); // Fetch items
+    const { data: categoryData, loading: categoryLoading, error: categoryError, refetch: refetchCategories } = useFetch<ICategory[]>(GetCategories(CategoryAPI_URL, Active)); // Fetch categories
+    const { data: itemData, loading: itemLoading, error: itemError, refetch: refetchItems } = useFetch<IItem[]>(GetItems(ItemAPI_URL, activeFilter)); // Fetch items
 
     return (
         <>

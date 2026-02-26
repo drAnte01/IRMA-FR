@@ -1,5 +1,4 @@
 // components/template/popupTemplates.ts
-import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import type { ICategory } from "../../interface/interface";
 
 //CATEGORY POPUPS
