@@ -163,3 +163,9 @@
         max-width: 300px;
     }
 }
+
+@media print {
+    .navbar {
+        display: none !important;
+    }
+}

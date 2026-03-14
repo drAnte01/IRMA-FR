@@ -265,3 +265,36 @@ input[name="price"] {
 .popupCustomContent {
   margin-top: 8px;
 }
+
+@media print {
+  .popupBackdrop {
+    position: static;
+    inset: auto;
+    width: auto;
+    height: auto;
+    background: transparent;
+    display: block;
+  }
+
+  .popUp {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #000;
+    border-radius: 0;
+    box-shadow: none;
+    animation: none;
+  }
+
+  .popupClose,
+  .popupTitle,
+  .confirmDenied {
+    display: none !important;
+  }
+
+  .popupCustomContent {
+    margin: 0;
+  }
+}

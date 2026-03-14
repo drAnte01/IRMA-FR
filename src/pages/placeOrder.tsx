@@ -11,6 +11,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUtensils, faMartiniGlassCitrus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Button from "../components/button/button"
+import PopUp from "../components/popup/popUp";
 import { CategoryAPI_URL, ItemAPI_URL, GetCategories, GetItems, getActiveOrder, OrderAPI_URL } from "../help/enpoints";
 import { useCreate } from "../hooks/useCreate";
 import { useUpdate } from "../hooks/useUpdate";
@@ -32,6 +33,17 @@ function PlaceOrder() {
     const { deleteData: deleteOrderItem, loading: _deleting, error: _deleteError } = useDelete(); // Delete order item
     const updateQueueRef = useRef<Promise<void>>(Promise.resolve());
     const quantityDebounceTimersRef = useRef<DebounceTimerMap>({});
+    const [isInvoicePopupOpen, setIsInvoicePopupOpen] = useState(false);
+    const [invoiceSnapshot, setInvoiceSnapshot] = useState<{
+        orderId: number;
+        table?: string;
+        createdAt?: string;
+        paidAt?: string;
+        subtotal?: string;
+        taxAmount?: string;
+        totalPrice?: string;
+        items: IOrder["orderItems"];
+    } | null>(null);
 
     // Render order items in a stable order to avoid UI jumps when backend returns items in a different sequence.
     const stableOrderItems = useMemo(() => {
@@ -66,6 +78,8 @@ function PlaceOrder() {
 
     //order payment and closing logic
     async function closeOrder(orderId: number, status: string) {
+        if (!orderId) return;
+
         try {
             await updateOrderItem(`${OrderAPI_URL}/close`, orderId, { status });
             refetchOrders();
@@ -110,10 +124,32 @@ function PlaceOrder() {
         });
     }
 
-    function handlePayClick() {
+    async function handlePayClick() {
         if (isCartEmpty) return;
 
-        closeOrder(Number(orderData?.order?.id ?? 0), "paid");
+        const orderId = Number(orderData?.order?.id ?? 0);
+        if (!orderId) return;
+
+        setInvoiceSnapshot({
+            orderId,
+            table: orderData?.order?.table,
+            createdAt: orderData?.order?.createdAt,
+            paidAt: new Date().toISOString(),
+            subtotal: orderData?.order?.subtotal,
+            taxAmount: orderData?.order?.taxAmount,
+            totalPrice: orderData?.order?.totalPrice,
+            items: stableOrderItems,
+        });
+
+        await closeOrder(orderId, "paid");
+        setIsInvoicePopupOpen(true);
+    }
+
+    async function handlePrintInvoice() {
+        if (!invoiceSnapshot?.orderId) return;
+
+        window.print();
+        setIsInvoicePopupOpen(false);
     }
 
     return (
@@ -222,6 +258,39 @@ function PlaceOrder() {
                     </div>
                 </div>
             </div>
+
+            <PopUp
+                status={isInvoicePopupOpen}
+                closemodal={() => setIsInvoicePopupOpen(false)}
+                title="Invoice"
+            >
+                <div className={style.invoiceReceipt}>
+                    <div className={style.invoiceMeta}>
+                        <p><strong>Order:</strong> #{invoiceSnapshot?.orderId ?? "-"}</p>
+                        <p><strong>Table:</strong> {invoiceSnapshot?.table ?? tableName ?? "-"}</p>
+                        <p><strong>Created:</strong> {formatDateTime24(invoiceSnapshot?.createdAt)}</p>
+                        <p><strong>Paid:</strong> {formatDateTime24(invoiceSnapshot?.paidAt)}</p>
+                    </div>
+
+                    <div className={style.invoiceList}>
+                        {(invoiceSnapshot?.items ?? []).map((item) => (
+                            <div key={item.id ?? item.itemId} className={style.invoiceRow}>
+                                <span>{item.itemName}</span>
+                                <span>x{item.quantity}</span>
+                                <span>{item.price} BAM</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className={style.invoiceTotals}>
+                        <p>Items: {invoiceSnapshot?.subtotal ?? "0"} BAM</p>
+                        <p>Tax: {invoiceSnapshot?.taxAmount ?? "0"} BAM</p>
+                        <p><strong>Total: {invoiceSnapshot?.totalPrice ?? "0"} BAM</strong></p>
+                    </div>
+
+                    <button className={style.printInvoiceButton} onClick={handlePrintInvoice}>Print PDF</button>
+                </div>
+            </PopUp>
         </>
     );
 }

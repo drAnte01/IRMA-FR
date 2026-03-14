@@ -211,3 +211,85 @@
 .itemIncrement:active {
     transform: scale(1.15);
 }
+
+.invoiceReceipt {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.invoiceMeta p {
+    margin: 0;
+    color: #d1d1d1;
+}
+
+.invoiceList {
+    max-height: 240px;
+    overflow-y: auto;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    padding: 10px 0;
+}
+
+.invoiceRow {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    padding: 6px 0;
+    color: #f1f1f1;
+}
+
+.invoiceTotals {
+    color: #d7d7d7;
+}
+
+.invoiceTotals p {
+    margin: 4px 0;
+}
+
+.printInvoiceButton {
+    width: 100%;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 12px;
+    background-color: #219150;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.printInvoiceButton:hover {
+    background-color: #1a7b44;
+}
+
+@media print {
+    .PlaceOrder {
+        display: none !important;
+    }
+
+    .invoiceReceipt {
+        display: block;
+        color: #000;
+        background: #fff;
+        font-size: 12pt;
+        line-height: 1.35;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .invoiceMeta p,
+    .invoiceTotals,
+    .invoiceRow {
+        color: #000;
+    }
+
+    .invoiceList {
+        max-height: none;
+        overflow: visible;
+        border-color: #000;
+    }
+
+    .printInvoiceButton {
+        display: none !important;
+    }
+}
