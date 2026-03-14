@@ -58,7 +58,7 @@ function OrderCard({ price, itemsCount, index = 0, name, selected = false, onSel
                 <div className={style.cardHeader} style={{ height: "auto", alignItems: "center" }}>
                     <div className={style.title} ><h4>{name}</h4></div>
                     <div className={style.cartButton}>
-                        <button onClick={addToCart}><FontAwesomeIcon icon="cart-plus" /></button>
+                        <button onClick={addToCart} disabled={cartItems === 0}><FontAwesomeIcon icon="cart-plus" /></button>
                     </div>
                 </div>
                 <div className={style.content}>

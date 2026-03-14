@@ -37,6 +37,7 @@ function PlaceOrder() {
     const stableOrderItems = useMemo(() => {
         return [...(orderData?.orderItems ?? [])].sort((a, b) => Number(a.id ?? 0) - Number(b.id ?? 0));
     }, [orderData?.orderItems]);
+    const isCartEmpty = stableOrderItems.length === 0;
 
     useEffect(() => {
         return () => {
@@ -60,6 +61,17 @@ function PlaceOrder() {
             refetchOrders();
         } catch (error) {
             console.error("Error adding to cart:", error);
+        }
+    }
+
+    //order payment and closing logic
+    async function closeOrder(orderId: number, status: string) {
+        try {
+            await updateOrderItem(`${OrderAPI_URL}/close`, orderId, { status });
+            refetchOrders();
+        } catch (error) {
+            console.error("URL: ", `${OrderAPI_URL}/${orderId}/close`);
+            console.error("Something went wrong:", error);
         }
     }
 
@@ -96,6 +108,12 @@ function PlaceOrder() {
                 console.error("Error deleting item from order:", error);
             }
         });
+    }
+
+    function handlePayClick() {
+        if (isCartEmpty) return;
+
+        closeOrder(Number(orderData?.order?.id ?? 0), "paid");
     }
 
     return (
@@ -153,36 +171,36 @@ function PlaceOrder() {
                                     const currentQuantity = Number(order.quantity ?? 0);
 
                                     return (
-                                    <div key={orderItemId || order.id} className={style.orderItem}>
-                                        <div className={style.orderRow}>
-                                            <span>{order.itemName}</span>
-                                            <span>x{order.quantity}</span>
-                                        </div>
-                                        <div className={style.orderRow}>
-                                            <span className={style.deleteIcon}>
-                                                <FontAwesomeIcon icon={faTrash} onClick={() => { deleteItemFromOrder(orderId, orderItemId) }} />
-                                            </span>
-                                            <div className={style.itemCount}>
-                                                <span
-                                                    className={style.itemDecrement}
-                                                    onClick={() => {
-                                                        updateItemsQuantity(orderId, orderItemId, currentQuantity - 1);
-                                                    }}
-                                                >
-                                                    -
-                                                </span>
-                                                <span
-                                                    className={style.itemIncrement}
-                                                    onClick={() => {
-                                                        updateItemsQuantity(orderId, orderItemId, currentQuantity + 1);
-                                                    }}
-                                                >
-                                                    +
-                                                </span>
+                                        <div key={orderItemId || order.id} className={style.orderItem}>
+                                            <div className={style.orderRow}>
+                                                <span>{order.itemName}</span>
+                                                <span>x{order.quantity}</span>
                                             </div>
-                                            <span>{order.price} BAM</span>
+                                            <div className={style.orderRow}>
+                                                <span className={style.deleteIcon}>
+                                                    <FontAwesomeIcon icon={faTrash} onClick={() => { deleteItemFromOrder(orderId, orderItemId) }} />
+                                                </span>
+                                                <div className={style.itemCount}>
+                                                    <span
+                                                        className={style.itemDecrement}
+                                                        onClick={() => {
+                                                            updateItemsQuantity(orderId, orderItemId, currentQuantity - 1);
+                                                        }}
+                                                    >
+                                                        -
+                                                    </span>
+                                                    <span
+                                                        className={style.itemIncrement}
+                                                        onClick={() => {
+                                                            updateItemsQuantity(orderId, orderItemId, currentQuantity + 1);
+                                                        }}
+                                                    >
+                                                        +
+                                                    </span>
+                                                </div>
+                                                <span>{order.price} BAM</span>
+                                            </div>
                                         </div>
-                                    </div>
                                     );
                                 })}
                                 {orderLoading && <p>Loading orders...</p>}
@@ -196,7 +214,7 @@ function PlaceOrder() {
                                 <div className={style.row}><p>Total with Tax: {orderData?.order?.totalPrice} <span>BAM</span></p></div>
                             </div>
                             <div className={style.actionSection}>
-                                <Button variant="pay" size="large">Pay</Button>
+                                <Button onClick={handlePayClick} disabled={isCartEmpty} variant="pay" size="large">Pay</Button>
 
 
                             </div>

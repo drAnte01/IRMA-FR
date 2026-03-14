@@ -14,6 +14,7 @@ type PopUpProps = {
     options?: string[];
     content?: string;
     select?: any[];
+    children?: React.ReactNode;
 }
 function PopUp(props: PopUpProps) {
 
@@ -165,6 +166,7 @@ function PopUp(props: PopUpProps) {
                             </form>
                         </div>)}
                         {props.content && (<div className={style.popupContentMessage}><h2>{props.content}</h2></div>)}
+                        {props.children && (<div className={style.popupCustomContent}>{props.children}</div>)}
                         {props.options && (<div className={style.confirmDenied}><h2 onClick={props.confirmClick}>Yes</h2> <h2 onClick={() => { props.closemodal?.(); setIsvisible(false); }}>No</h2> </div>)}
                     </div>
                 </div >)

@@ -105,3 +105,10 @@
     font-weight: 600;
     width: 100%;
 }
+
+.button:disabled,
+.disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    filter: grayscale(0.2);
+}

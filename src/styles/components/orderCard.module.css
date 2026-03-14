@@ -123,6 +123,15 @@ input[type="radio"]:checked {
     /* mali zoom na hover */
 }
 
+.cartButton button:disabled {
+    background: #3f3f3f;
+    border-color: #3f3f3f;
+    color: #9a9a9a;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.8;
+}
+
 .cartButton button:active {
     transform: scale(0.95);
 }
