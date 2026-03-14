@@ -42,9 +42,10 @@ export type IOrderInfo = {
 
 export type IOrderItem = {
   id?: number;
+  itemId?: number;
   itemName?: string;
-  quantity?: string;
-  price?: string;
+  quantity?: string | number;
+  price?: string | number;
   CreatedAt?: string;
 };
 

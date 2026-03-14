@@ -135,7 +135,17 @@
 .orderRow {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin: 5px 0px;
+}
+
+.orderItem .orderRow:last-child {
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.orderItem .orderRow:last-child span:last-child {
+    margin-left: auto;
 }
 
 .orderItems {
@@ -146,4 +156,58 @@
 
 .orderItems::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Edge */
+}
+
+
+/* ovo mijenjam*/
+.decreaseCount
+{
+    width: 32px;
+    height: 32px;
+    color: #d7a93c;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.deleteIcon
+{
+    cursor: pointer;
+}
+
+.itemCount
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 32px;
+    height: 32px;
+    background-color: transparent;
+    color: #d7a93c;
+    border: none;
+    font-size: 22px;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.itemDecrement,
+.itemIncrement {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    transition: transform 120ms ease, color 120ms ease;
+    transform-origin: center;
+}
+
+.itemDecrement:hover,
+.itemIncrement:hover {
+    transform: scale(1.08);
+}
+
+.itemDecrement:active,
+.itemIncrement:active {
+    transform: scale(1.15);
 }
