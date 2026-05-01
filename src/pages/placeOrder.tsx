@@ -17,8 +17,20 @@ import { useCreate } from "../hooks/useCreate";
 import { useUpdate } from "../hooks/useUpdate";
 import { useDelete } from "../hooks/useDelete";
 import { clearDebounceTimer, enqueueOrderMutation, formatDateTime24, scheduleDebouncedMutation, type DebounceTimerMap } from "../help/customFunctions";
+import { jsPDF } from "jspdf";
 
 library.add(faUtensils, faMartiniGlassCitrus, faTrash);
+
+type InvoiceSnapshot = {
+    orderId: number;
+    table?: string;
+    createdAt?: string;
+    paidAt?: string;
+    subtotal?: string;
+    taxAmount?: string;
+    totalPrice?: string;
+    items: IOrder["orderItems"];
+};
 
 function PlaceOrder() {
     const { tableName } = useParams();
@@ -34,16 +46,8 @@ function PlaceOrder() {
     const updateQueueRef = useRef<Promise<void>>(Promise.resolve());
     const quantityDebounceTimersRef = useRef<DebounceTimerMap>({});
     const [isInvoicePopupOpen, setIsInvoicePopupOpen] = useState(false);
-    const [invoiceSnapshot, setInvoiceSnapshot] = useState<{
-        orderId: number;
-        table?: string;
-        createdAt?: string;
-        paidAt?: string;
-        subtotal?: string;
-        taxAmount?: string;
-        totalPrice?: string;
-        items: IOrder["orderItems"];
-    } | null>(null);
+    const [invoiceSnapshot, setInvoiceSnapshot] = useState<InvoiceSnapshot | null>(null);
+    const [isPaying, setIsPaying] = useState(false);
 
     // Render order items in a stable order to avoid UI jumps when backend returns items in a different sequence.
     const stableOrderItems = useMemo(() => {
@@ -77,11 +81,15 @@ function PlaceOrder() {
     }
 
     //order payment and closing logic
-    async function closeOrder(orderId: number, status: string) {
+    async function closeOrder(orderId: number, status: string, invoicePdf: { pdfBase64: string; fileName?: string }) {
         if (!orderId) return;
 
         try {
-            await updateOrderItem(`${OrderAPI_URL}/close`, orderId, { status });
+            await updateOrderItem(`${OrderAPI_URL}/close`, orderId, {
+                status,
+                pdfBase64: invoicePdf.pdfBase64,
+                fileName: invoicePdf.fileName,
+            });
             refetchOrders();
         } catch (error) {
             console.error("URL: ", `${OrderAPI_URL}/${orderId}/close`);
@@ -124,13 +132,86 @@ function PlaceOrder() {
         });
     }
 
+    function arrayBufferToBase64(buffer: ArrayBuffer): string {
+        let binary = "";
+        const bytes = new Uint8Array(buffer);
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+            const chunk = bytes.subarray(i, i + chunkSize);
+            binary += String.fromCharCode(...chunk);
+        }
+
+        return btoa(binary);
+    }
+
+    async function buildInvoicePdfBase64(snapshot: InvoiceSnapshot): Promise<string> {
+        const doc = new jsPDF({ unit: "mm", format: "a4" });
+        const left = 14;
+        let cursorY = 16;
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.text("IRMA Invoice", left, cursorY);
+
+        cursorY += 10;
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Order: #${snapshot.orderId}`, left, cursorY);
+        cursorY += 6;
+        doc.text(`Table: ${snapshot.table ?? tableName ?? "-"}`, left, cursorY);
+        cursorY += 6;
+        doc.text(`Created: ${formatDateTime24(snapshot.createdAt)}`, left, cursorY);
+        cursorY += 6;
+        doc.text(`Paid: ${formatDateTime24(snapshot.paidAt)}`, left, cursorY);
+        cursorY += 8;
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Item", left, cursorY);
+        doc.text("Qty", 145, cursorY);
+        doc.text("Price", 175, cursorY);
+        cursorY += 4;
+        doc.line(left, cursorY, 196, cursorY);
+        cursorY += 6;
+
+        doc.setFont("helvetica", "normal");
+        (snapshot.items ?? []).forEach((item) => {
+            if (cursorY > 270) {
+                doc.addPage();
+                cursorY = 20;
+            }
+
+            const itemName = item.itemName ?? "Unknown item";
+            const qty = String(item.quantity ?? 0);
+            const price = `${item.price ?? 0} BAM`;
+
+            doc.text(itemName, left, cursorY);
+            doc.text(qty, 147, cursorY);
+            doc.text(price, 175, cursorY);
+            cursorY += 6;
+        });
+
+        cursorY += 4;
+        doc.line(left, cursorY, 196, cursorY);
+        cursorY += 8;
+        doc.setFont("helvetica", "bold");
+        doc.text(`Subtotal: ${snapshot.subtotal ?? "0"} BAM`, left, cursorY);
+        cursorY += 6;
+        doc.text(`Tax: ${snapshot.taxAmount ?? "0"} BAM`, left, cursorY);
+        cursorY += 6;
+        doc.text(`Total: ${snapshot.totalPrice ?? "0"} BAM`, left, cursorY);
+
+        const pdfArrayBuffer = doc.output("arraybuffer");
+        return arrayBufferToBase64(pdfArrayBuffer);
+    }
+
     async function handlePayClick() {
-        if (isCartEmpty) return;
+        if (isCartEmpty || isPaying) return;
 
         const orderId = Number(orderData?.order?.id ?? 0);
         if (!orderId) return;
 
-        setInvoiceSnapshot({
+        const snapshot: InvoiceSnapshot = {
             orderId,
             table: orderData?.order?.table,
             createdAt: orderData?.order?.createdAt,
@@ -139,10 +220,24 @@ function PlaceOrder() {
             taxAmount: orderData?.order?.taxAmount,
             totalPrice: orderData?.order?.totalPrice,
             items: stableOrderItems,
-        });
+        };
 
-        await closeOrder(orderId, "paid");
-        setIsInvoicePopupOpen(true);
+        setInvoiceSnapshot(snapshot);
+        setIsPaying(true);
+
+        try {
+            const pdfBase64 = await buildInvoicePdfBase64(snapshot);
+            await closeOrder(orderId, "paid", {
+                pdfBase64,
+                fileName: `racun-${orderId}.pdf`,
+            });
+            setIsInvoicePopupOpen(true);
+        } catch (error) {
+            console.error("Failed to close order with invoice PDF:", error);
+            alert("Placanje nije uspjelo. PDF nije sacuvan na backend-u.");
+        } finally {
+            setIsPaying(false);
+        }
     }
 
     async function handlePrintInvoice() {
@@ -250,7 +345,7 @@ function PlaceOrder() {
                                 <div className={style.row}><p>Total with Tax: {orderData?.order?.totalPrice} <span>BAM</span></p></div>
                             </div>
                             <div className={style.actionSection}>
-                                <Button onClick={handlePayClick} disabled={isCartEmpty} variant="pay" size="large">Pay</Button>
+                                <Button onClick={handlePayClick} disabled={isCartEmpty || isPaying} variant="pay" size="large">{isPaying ? "Processing..." : "Pay"}</Button>
 
 
                             </div>

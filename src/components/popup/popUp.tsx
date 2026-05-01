@@ -12,6 +12,7 @@ type PopUpProps = {
     input?: IInput;
     status?: boolean;
     options?: string[];
+    roleOptions?: string[];
     content?: string;
     select?: any[];
     children?: React.ReactNode;
@@ -20,7 +21,25 @@ function PopUp(props: PopUpProps) {
 
     const [isVisible, setIsvisible] = useState(props.status);
     const labels = props.labels ?? {};
-    const isStaff = Boolean(labels.Fname || labels.Lname || labels.email || labels.username || labels.password || labels.typeStaff || labels.dateOfBirth || labels.image || labels.phone || labels.adress);
+    const isStaff = Boolean(
+        labels.Fname ||
+        labels.Lname ||
+        labels.email ||
+        labels.username ||
+        labels.password ||
+        labels.typeStaff ||
+        labels.dateOfBirth ||
+        labels.image ||
+        labels.phone ||
+        labels.adress ||
+        labels.firstName ||
+        labels.lastName ||
+        labels.phoneNumber ||
+        labels.position ||
+        labels.dateOfEmployment ||
+        labels.role ||
+        labels.createdAt
+    );
 
     useEffect(() => {
         if (props.status) {
@@ -52,6 +71,13 @@ function PopUp(props: PopUpProps) {
             image: formData.get("image") as string,
             adress: formData.get("adress") as string,
             phone: formData.get("phone") as string,
+            firstName: formData.get("firstName") as string,
+            lastName: formData.get("lastName") as string,
+            phoneNumber: formData.get("phoneNumber") as string,
+            position: formData.get("position") as string,
+            dateOfEmployment: formData.get("dateOfEmployment") as string,
+            role: (formData.get("role") as "admin" | "none" | null) ?? undefined,
+            createdAt: formData.get("createdAt") as string,
         }
         console.log(data);
         if (props.onSubmit)
@@ -157,6 +183,59 @@ function PopUp(props: PopUpProps) {
                                     <div className={style.staffField}>
                                         <label htmlFor="image">{labels.image}</label>
                                         <input id="image" type="text" name="image" defaultValue={props.input?.image} required />
+                                    </div>
+                                )}
+
+                                {labels.firstName && (
+                                    <div className={style.staffField}>
+                                        <label htmlFor="firstName">{labels.firstName}</label>
+                                        <input id="firstName" type="text" name="firstName" defaultValue={props.input?.firstName} required />
+                                    </div>
+                                )}
+                                {labels.lastName && (
+                                    <div className={style.staffField}>
+                                        <label htmlFor="lastName">{labels.lastName}</label>
+                                        <input id="lastName" type="text" name="lastName" defaultValue={props.input?.lastName} required />
+                                    </div>
+                                )}
+                                {labels.phoneNumber && (
+                                    <div className={style.staffField}>
+                                        <label htmlFor="phoneNumber">{labels.phoneNumber}</label>
+                                        <input id="phoneNumber" type="text" name="phoneNumber" defaultValue={props.input?.phoneNumber} required />
+                                    </div>
+                                )}
+                                {labels.position && (
+                                    <div className={style.staffField}>
+                                        <label htmlFor="position">{labels.position}</label>
+                                        <input id="position" type="text" name="position" defaultValue={props.input?.position} required />
+                                    </div>
+                                )}
+                                {labels.dateOfEmployment && (
+                                    <div className={style.staffField}>
+                                        <label htmlFor="dateOfEmployment">{labels.dateOfEmployment}</label>
+                                        <input id="dateOfEmployment" type="date" name="dateOfEmployment" defaultValue={props.input?.dateOfEmployment} required />
+                                    </div>
+                                )}
+                                {labels.role && (
+                                    <div className={style.staffField}>
+                                        <label htmlFor="role">{labels.role}</label>
+                                        <select id="role" name="role" defaultValue={props.input?.role ?? "none"} required>
+                                            {(props.roleOptions ?? ["admin", "none"]).map((option) => (
+                                                <option key={option} value={option}>{option}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+                                {labels.createdAt && (
+                                    <div className={style.staffField}>
+                                        <label htmlFor="createdAt">{labels.createdAt}</label>
+                                        <input
+                                            id="createdAt"
+                                            type="datetime-local"
+                                            name="createdAt"
+                                            defaultValue={props.input?.createdAt ?? new Date().toISOString().slice(0, 16)}
+                                            required
+                                        />
                                     </div>
                                 )}
 

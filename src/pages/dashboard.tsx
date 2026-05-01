@@ -4,12 +4,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUtensils, faMartiniGlassCitrus } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import AccountSummary from "../components/accountSummary/accountSummary";
 import Button from "../components/button/button";
-import { CategoryAPI_URL, ItemAPI_URL, GetCategories, GetItems } from "../help/enpoints";
+import { CategoryAPI_URL, ItemAPI_URL, GetCategories, GetItems, SalesAPI_URL, GetSales, StaffAPI_URL } from "../help/enpoints";
 import PopUp from "../components/popup/popUp";
 import Message from "../components/Ui/Mesage";
-import type { ICategory, IFormData, IItem, IPopUp, IStaff } from "../interface/interface";
+import type { ICategory, IFormData, IItem, IPopUp, IStaff, IAllSalesResponse } from "../interface/interface";
 import Table from "../components/table/table";
 import { useFetch } from "../hooks/useFetch";
 import { useCreate } from "../hooks/useCreate";
@@ -28,6 +29,14 @@ function Dashboard() {
     const [activeFilter, setActiveFilter] = useState<string>("All");
     const { data: categoryData, loading: categoryLoading, error: categoryError, refetch: refetchCategories } = useFetch<ICategory[]>(GetCategories(CategoryAPI_URL, Active)); // Fetch categories
     const { data: itemData, loading: itemLoading, error: itemError, refetch: refetchItems } = useFetch<IItem[]>(GetItems(ItemAPI_URL, activeFilter)); // Fetch items
+    const { data: staffData, loading: staffLoading, error: staffError, refetch: refetchStaff } = useFetch<IStaff[]>(StaffAPI_URL); // Fetch staff
+
+    const { data: allSalesData } = useFetch<IAllSalesResponse>(GetSales(SalesAPI_URL, "all"));
+
+    const dailyTotal = allSalesData?.daily?.totalSales ?? null;
+    const weeklyTotal = allSalesData?.weekly?.totalSales ?? null;
+    const monthlyTotal = allSalesData?.monthly?.totalSales ?? null;
+
     const { createNewData, loading: _creating, error: _createError } = useCreate<any>(); // Create 
     const { deleteData, loading: _deleting, error: _deleteError } = useDelete();   // Delete
     const { updateData, loading: _updating, error: _updateError } = useUpdate<any>(); // Update
@@ -37,10 +46,11 @@ function Dashboard() {
     const [popupInfo, setPopupInfo] = useState<IPopUp>({
         title: "",
         type: Active,
-        labels: { name: "", type: "", description: "", price: "", imageUrl: "", phone: "", adress: "" },
+        labels: { name: "", type: "", description: "", price: "", imageUrl: "", phone: "", adress: "", firstName: "", lastName: "", phoneNumber: "", position: "", dateOfEmployment: "", role: "", createdAt: "" },
         onSubmit: undefined,
         confirmClick: undefined,
         options: [""],
+        roleOptions: ["admin", "none"],
         content: "",
     });
     const currentId = useRef<number>(0)
@@ -226,26 +236,25 @@ function Dashboard() {
         setPopupInfo({
             ...createNewStaffPopup(),
             onSubmit: async (data: IStaff) => {
-                if (data.Fname && data.Lname && data.email && data.username && data.password && data.typeStaff && data.dateOfBirth) {
+                if (data.firstName && data.lastName && data.phoneNumber && data.email && data.position && data.dateOfEmployment && data.password && data.role && data.createdAt) {
                     try {
-                        await createNewData("StaffAPI_URL", {
-                            Fname: data.Fname,
-                            Lname: data.Lname,
+                        await createNewData(StaffAPI_URL, {
+                            firstName: data.firstName,
+                            lastName: data.lastName,
+                            phoneNumber: data.phoneNumber,
                             email: data.email,
-                            username: data.username,
+                            position: data.position,
+                            dateOfEmployment: data.dateOfEmployment,
                             password: data.password,
-                            typeStaff: data.typeStaff,
-                            dateOfBirth: data.dateOfBirth,
-                            image: data.image,
-                            phone: data.phone,
-                            adress: data.adress,
+                            role: data.role,
+                            createdAt: data.createdAt,
                         });
                         setMessageProps({
                             ...successMessage("staff member"),
                             isVisible: MessageProps.isVisible + 1,
                         });
                         setIsPopUpOpen(false);
-                        await refetchCategories(); // TREBA PROMJENITI DA PRIKAZUJE STAFF UMJESTO CATEGORY
+                        await refetchStaff();
                     } catch (err) {
                         setMessageProps({
                             ...errorMessage("staff member"),
@@ -261,9 +270,9 @@ function Dashboard() {
     return (
         <>
             <div className="dashboard">
-                <AccountSummary />
+                <AccountSummary daily={dailyTotal} weekly={weeklyTotal} monthly={monthlyTotal} show={{ daily: true, weekly: true, monthly: true }} />
                 <Message isVisible={MessageProps.isVisible} message={MessageProps.status} messageDetails={MessageProps} />
-                <PopUp select={popupInfo.select} content={popupInfo.content} options={popupInfo.options} confirmClick={async () => await popupInfo.confirmClick?.()} onSubmit={async (data: IFormData) => await popupInfo.onSubmit?.(data)} title={popupInfo.title} labels={popupInfo.labels} closemodal={ClosePopup} status={isPopUpOpen} input={popupInfo.input} type={popupInfo.type} />
+                <PopUp select={popupInfo.select} roleOptions={popupInfo.roleOptions} content={popupInfo.content} options={popupInfo.options} confirmClick={async () => await popupInfo.confirmClick?.()} onSubmit={async (data: IFormData) => await popupInfo.onSubmit?.(data)} title={popupInfo.title} labels={popupInfo.labels} closemodal={ClosePopup} status={isPopUpOpen} input={popupInfo.input} type={popupInfo.type} />
                 <div className={style.itemsContainer}>
                     <div className={style.tabs}>
                         <Tab value="food" onclick={() => setActive("food")} active={Active}><FontAwesomeIcon icon={faUtensils}></FontAwesomeIcon> Food</Tab>
@@ -336,24 +345,22 @@ function Dashboard() {
                         <h2>Staff members <Button onClick={() => createStaffMember()} variant="add" size="medium">Add+</Button></h2>
                         <div className={style.tableWrapper}>
 
-                            <Table<IItem> size="l" data={itemData ? filterItemsByActiveType(itemData, categoryData, Active) : []} columns={[
-                                { header: "ID", render: (_row: IItem, rowIndex: number) => (rowIndex + 1), textalignment: "center", headerAlignment: "center" },
-                                { header: "Name", accessor: "name", textalignment: "center", headerAlignment: "center" },
-                                { header: "Username", accessor: "name", textalignment: "center", headerAlignment: "center" },
+                            <Table<IStaff> size="l" data={staffData ?? []} columns={[
+                                { header: "ID", render: (_row: IStaff, rowIndex: number) => (rowIndex + 1), textalignment: "center", headerAlignment: "center" },
+                                { header: "First name", accessor: "firstName", textalignment: "center", headerAlignment: "center" },
+                                { header: "Lastname", accessor: "lastName", textalignment: "center", headerAlignment: "center" },
+                                { header: "E-mail", accessor: "email", textalignment: "center", headerAlignment: "center" },
                                 {
-                                    header: "Actions", render: (row: IItem) => (
-                                        <div className={style.actionButton}>
-                                            <Button onClick={() => { updateItem(); currentId.current = row.id!; setPopupInfo(prev => ({ ...prev, select: categoryData ? categoryData.filter(c => c.type === Active) : [], input: { name: row.name, description: row.description, price: row.price, imageUrl: row.imageUrl, categoryId: row.categoryId ?? categoryData?.find(c => c.name === row.categoryName)?.id }, type: Active })) }} variant="edit" size="small">Edit</Button>
-                                            <Button onClick={() => { deleteItem(); currentId.current = row.id!; setPopupInfo(prev => ({ ...prev, input: { name: row.name }, type: Active })) }} variant="delete" size="small">Delete</Button>
-                                        </div>
-                                    ), textalignment: "left", headerAlignment: "center"
+                                    header: "See more", render: (row: IStaff) => (
+                                        <Link to={`/staff/${row.id}`}>See more</Link>
+                                    ), textalignment: "center", headerAlignment: "center"
                                 }
 
                             ]
                             }
                             />
-                            {itemLoading && <p>Loading items...</p>}
-                            {itemError && <p className={style.error}>Error loading items: {itemError.message}</p>}
+                            {staffLoading && <p>Loading staff members...</p>}
+                            {staffError && <p className={style.error}>Error loading staff members: {staffError.message}</p>}
                         </div>
                     </div>
 

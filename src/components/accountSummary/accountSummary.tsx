@@ -1,8 +1,17 @@
-//components/dashboard/accountSummary.tsx
-
 import style from "../../styles/components/accountSummary.module.css";
 
-function AccountSummary() {
+type Props = {
+    daily: number | null;
+    weekly: number | null;
+    monthly: number | null;
+     show?: {
+        daily?: boolean;
+        weekly?: boolean;
+        monthly?: boolean;
+    };
+};
+
+function AccountSummary({ daily, weekly, monthly, show }: Props) {
     return (
         <>
             <div className={style.accountSummary}>
@@ -12,25 +21,33 @@ function AccountSummary() {
 
                 {/* Statistika po periodima */}
                 <div className={style.periodicStats}>
-                    <div className={style.statCard}>
-                        <span className={style.label}>Today</span>
-                        <span className={style.amount}>€ 0.00</span>
-                    </div>
 
-                    <div className={style.statCard}>
-                        <span className={style.label}>This Week</span>
-                        <span className={style.amount}>€ 0.00</span>
-                    </div>
+                    {show?.daily && (
+                        <div className={style.statCard}>
+                            <span className={style.label}>Today</span>
+                            <span className={style.amount}>€ {daily?.toFixed(2)}</span>
+                        </div>
+                    )}
 
-                    <div className={style.statCard}>
-                        <span className={style.label}>Last Month</span>
-                        <span className={style.amount}>€ 0.00</span>
-                    </div>
+                    {show?.weekly && (
+                        <div className={style.statCard}>
+                            <span className={style.label}>This Week</span>
+                            <span className={style.amount}>€ {weekly?.toFixed(2)}</span>
+                        </div>
+                    )}
+
+                    {show?.monthly && (
+                        <div className={style.statCard}>
+                            <span className={style.label}>This Month</span>
+                            <span className={style.amount}>€ {monthly?.toFixed(2)}</span>
+                        </div>
+                    )}
+
                 </div>
 
             </div>
         </>
-    )
+    );
 }
 
 export default AccountSummary;

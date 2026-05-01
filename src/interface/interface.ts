@@ -17,13 +17,21 @@ export type IItem = {
 
 export type IStaff = {
   id?: number;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
   Fname?: string;
   Lname?: string;
   email?: string;
+  position?: string;
   username?: string;
   password?: string;
+  role?: "admin" | "none";
+  dateOfEmployment?: string;
+  createdAt?: string;
   typeStaff?: string;
   dateOfBirth?: string;
+  imageURL?: string;
   image?: string;
   phone?: string;
   adress?: string;
@@ -66,11 +74,18 @@ export type IInput = {
   price?: number;
   imageUrl?: string;
   categoryId?: string | number;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
   Fname?: string;
   Lname?: string;
   email?: string;
+  position?: string;
   username?: string;
   password?: string;
+  role?: "admin" | "none";
+  dateOfEmployment?: string;
+  createdAt?: string;
   typeStaff?: string;
   dateOfBirth?: string;
   image?: string;
@@ -84,11 +99,18 @@ export interface ILabels {
   description?: string;
   price?: string;
   imageUrl?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
   Fname?: string;
   Lname?: string;
   email?: string;
+  position?: string;
   username?: string;
   password?: string;
+  role?: string;
+  dateOfEmployment?: string;
+  createdAt?: string;
   typeStaff?: string;
   dateOfBirth?: string;
   image?: string;
@@ -105,11 +127,18 @@ export type IPopUp = {
     description?: string;
     price?: string;
     imageUrl?: string;
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
     Fname?: string;
     Lname?: string;
     email?: string;
+    position?: string;
     username?: string;
     password?: string;
+    role?: string;
+    dateOfEmployment?: string;
+    createdAt?: string;
     typeStaff?: string;
     dateOfBirth?: string;
     image?: string;
@@ -120,6 +149,7 @@ export type IPopUp = {
   onSubmit?: (data: IFormData) => void | Promise<void>;
   confirmClick?: () => Promise<void>;
   options?: string[];
+  roleOptions?: string[];
   content?: string;
   select?: any[];
 };
@@ -132,14 +162,62 @@ export type IFormData = {
   categoryId?: number;
   price?: number;
   imageUrl?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
   Fname?: string;
   Lname?: string;
   email?: string;
+  position?: string;
   username?: string;
   password?: string;
+  role?: "admin" | "none";
+  dateOfEmployment?: string;
+  createdAt?: string;
   dateOfBirth?: string;
   image?: string;
   typeStaff?: string;
   adress?: string;
   phone?: string;
+};
+
+
+export type OrderRow = {
+    id: number;
+    table: string;
+    status: string;
+    subtotal?: string | number;
+    taxAmount?: string | number;
+    totalPrice?: string | number;
+    createdAt?: string;
+    pdfUrl?: string;
+    fileName?: string;
+};
+
+export type SalesData = {
+  type: "daily" | "weekly" | "monthly" | "all";
+  price: number;
+}
+
+export type IDailySalesResponse = {
+  date?: string;
+  totalSales?: number;
+};
+
+export type IWeeklySalesResponse = {
+  weekStart?: string;
+  weekEnd?: string;
+  totalSales?: number;
+};
+
+export type IMonthlySalesResponse = {
+  year?: number;
+  month?: number;
+  totalSales?: number;
+};
+
+export type IAllSalesResponse = {
+  daily?: IDailySalesResponse;
+  weekly?: IWeeklySalesResponse;
+  monthly?: IMonthlySalesResponse;
 };

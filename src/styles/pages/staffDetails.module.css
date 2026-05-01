@@ -1,0 +1,196 @@
+.page {
+    margin-left: 20%;
+  padding: 24px;
+  color: #ffffff;
+}
+
+.page h2 {
+  margin: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.card {
+  max-width: 980px;
+  background: #1f2229;
+  border-radius: 16px;
+  border: 1px solid #2f3440;
+  overflow: hidden;
+}
+
+.cardContent {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.imageColumn {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.detailsColumn {
+  flex: 1;
+  border: 1px solid #2f3440;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #2f3440;
+  min-height: 52px;
+  align-items: center;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row span {
+  color: #aab3c2;
+  min-width: 160px;
+}
+
+.row strong {
+  color: #ffffff;
+  text-align: right;
+}
+
+.fieldRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 1;
+  min-height: 28px;
+  justify-content: center;
+}
+
+.cardImage {
+  width: 260px;
+  height: 220px;
+  border-radius: 24px;
+  object-fit: cover;
+  border: 2px solid #2f3440;
+}
+
+.cardImagePlaceholder {
+  width: 260px;
+  height: 220px;
+  border-radius: 24px;
+  border: 2px dashed #555;
+  background-color: #2b2e38;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardImagePlaceholder span {
+  color: #aab3c2;
+  font-size: 14px;
+}
+
+.imageInputWrap {
+  width: 100%;
+  max-width: 260px;
+}
+
+.orDivider {
+  margin: 0;
+  color: #aab3c2;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+
+.hiddenFileInput {
+  display: none;
+}
+
+.editInput {
+  background-color: #2b2e38;
+  border: 1px solid #555;
+  border-radius: 5px;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 6px 10px;
+  width: 100%;
+  outline: none;
+  text-align: left;
+  min-height: 34px;
+}
+
+.editInput:focus {
+  border-color: #61d9fa;
+}
+
+.inputError {
+  border-color: #ff6b6b !important;
+}
+
+.fieldError {
+  color: #ff6b6b;
+  font-size: 12px;
+  margin: 4px 0 0;
+  text-align: right;
+}
+
+.switchLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+@media (max-width: 980px) {
+  .page {
+    margin-left: 0;
+  }
+
+  .cardContent {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .imageColumn {
+    width: 100%;
+  }
+
+  .cardImage,
+  .cardImagePlaceholder {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+
+.error {
+  color: #ff6b6b;
+}
+
+.backLink {
+  display: inline-block;
+  margin-top: 16px;
+  color: #61d9fa;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}

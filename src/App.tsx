@@ -5,6 +5,7 @@ import Items from "./pages/items";
 import Orders from "./pages/orders";
 import Tables from "./pages/tables";
 import PlaceOrder from "./pages/placeOrder";
+import StaffDetails from "./pages/staffDetails";
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/tables/" element={<Tables />} />
         <Route path="/tables/:tableName" element={<PlaceOrder />} />
+        <Route path="/staff/:staffId" element={<StaffDetails />} />
       </Routes>
 
     </>

@@ -21,8 +21,8 @@ function Items() {
 
     const [activeFilter, setActiveFilter] = useState<string>("All");
     const [Active, setActive] = useState<"food" | "drink">("food");
-    const { data: categoryData, loading: categoryLoading, error: categoryError, refetch: refetchCategories } = useFetch<ICategory[]>(GetCategories(CategoryAPI_URL, Active)); // Fetch categories
-    const { data: itemData, loading: itemLoading, error: itemError, refetch: refetchItems } = useFetch<IItem[]>(GetItems(ItemAPI_URL, activeFilter)); // Fetch items
+    const { data: categoryData } = useFetch<ICategory[]>(GetCategories(CategoryAPI_URL, Active)); // Fetch categories
+    const { data: itemData, loading: itemLoading, error: itemError } = useFetch<IItem[]>(GetItems(ItemAPI_URL, activeFilter)); // Fetch items
 
     return (
         <>

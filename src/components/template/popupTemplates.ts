@@ -52,15 +52,15 @@ export const editItemPopup = (categories: ICategory[],) => ({
 export const createNewStaffPopup = () => ({
   title: "Add new Staff Member",
   labels: {
-    phone: "Phone",
-    adress: "Adress",
-    Fname: "First Name",
-    Lname: "Last Name",
+    firstName: "First name",
+    lastName: "Lastname",
+    phoneNumber: "Phone number",
     email: "Email",
-    username: "Username",
+    position: "Position",
+    dateOfEmployment: "Date of employment",
     password: "Password",
-    typeStaff: "Staff Type",
-    dateOfBirth: "Date of Birth",
-    image: "Image URL",
+    role: "Role",
+    createdAt: "Created at",
   },
+  roleOptions: ["admin", "none"],
 });
