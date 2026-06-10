@@ -78,14 +78,13 @@
 }
 
 .filter:hover {
-    background-color: #e68a00;
-    /* malo tamnija nijansa na hover */
-    color: white;
+    background-color: #d7dde7;
+    color: #1f2229;
 }
 
 .filter:active {
     transform: scale(0.95);
-    /* lagano smanjenje prilikom klika */
+    background-color: #c8d0dc;
 }
 
 .small {

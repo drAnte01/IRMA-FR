@@ -21,11 +21,14 @@ import { jsPDF } from "jspdf";
 
 library.add(faUtensils, faMartiniGlassCitrus, faTrash);
 
+import { useAuth } from "../context/AuthContext";
 type InvoiceSnapshot = {
     orderId: number;
     table?: string;
     createdAt?: string;
     paidAt?: string;
+    waiterName?: string;
+    waiterId?: number;
     subtotal?: string;
     taxAmount?: string;
     totalPrice?: string;
@@ -37,6 +40,7 @@ function PlaceOrder() {
     //const [activeFilter, setActiveFilter] = useState<string>("All");
     const [Active, setActive] = useState<"food" | "drink">("food");
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
+    const { user } = useAuth();
     const { data: categoryData, loading: categoryLoading, error: categoryError, refetch: _refetchCategories } = useFetch<ICategory[]>(GetCategories(CategoryAPI_URL, Active)); // Fetch categories
     const { data: itemData, loading: _itemLoading, error: _itemError, refetch: _refetchItems } = useFetch<IItem[]>(GetItems(ItemAPI_URL, "All")); // Fetch items
     const { data: orderData, loading: orderLoading, error: orderError, refetch: refetchOrders } = useFetch<IOrder>(getActiveOrder(OrderAPI_URL, tableName || "")); // Fetch Orders  
@@ -54,6 +58,8 @@ function PlaceOrder() {
         return [...(orderData?.orderItems ?? [])].sort((a, b) => Number(a.id ?? 0) - Number(b.id ?? 0));
     }, [orderData?.orderItems]);
     const isCartEmpty = stableOrderItems.length === 0;
+    const waiterName = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim() || "Unknown waiter";
+    const waiterId = Number.isFinite(Number(user?.id)) ? Number(user?.id) : undefined;
 
     useEffect(() => {
         return () => {
@@ -87,6 +93,7 @@ function PlaceOrder() {
         try {
             await updateOrderItem(`${OrderAPI_URL}/close`, orderId, {
                 status,
+                waiterId,
                 pdfBase64: invoicePdf.pdfBase64,
                 fileName: invoicePdf.fileName,
             });
@@ -165,6 +172,8 @@ function PlaceOrder() {
         cursorY += 6;
         doc.text(`Paid: ${formatDateTime24(snapshot.paidAt)}`, left, cursorY);
         cursorY += 8;
+        doc.text(`Waiter: ${snapshot.waiterName ?? "-"}`, left, cursorY);
+        cursorY += 6;
 
         doc.setFont("helvetica", "bold");
         doc.text("Item", left, cursorY);
@@ -211,8 +220,24 @@ function PlaceOrder() {
         const orderId = Number(orderData?.order?.id ?? 0);
         if (!orderId) return;
 
+        const orderWaiterName = [
+            (orderData?.order as unknown as { waiterFirstName?: string })?.waiterFirstName,
+            (orderData?.order as unknown as { waiterLastName?: string })?.waiterLastName,
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .trim();
+
+        const snapshotWaiterName =
+            waiterName ||
+            orderWaiterName ||
+            (orderData?.order as unknown as { waiterName?: string })?.waiterName ||
+            "Unknown waiter";
+
         const snapshot: InvoiceSnapshot = {
             orderId,
+            waiterName: snapshotWaiterName,
+            waiterId,
             table: orderData?.order?.table,
             createdAt: orderData?.order?.createdAt,
             paidAt: new Date().toISOString(),
@@ -227,7 +252,7 @@ function PlaceOrder() {
 
         try {
             const pdfBase64 = await buildInvoicePdfBase64(snapshot);
-            await closeOrder(orderId, "paid", {
+            await closeOrder(orderId, "closed", {
                 pdfBase64,
                 fileName: `racun-${orderId}.pdf`,
             });
@@ -289,11 +314,10 @@ function PlaceOrder() {
                     <div className={style.billToPay}>
                         <div className={style.orderHeader}>
                             <div className={style.row}><p>Order ID: {orderData?.order?.id == 0 ? "order not created yet" : orderData?.order?.id}</p></div>
-                            <div className={style.row}><p>Waiter: {orderData?.order?.createdAt}</p></div>
+                            <div className={style.row}><p>Waiter: {waiterName}</p></div>
                             <div className={style.row}><p>Date: {formatDateTime24(orderData?.order?.createdAt)}</p></div>
                         </div>
                         <div className={style.orderBody}>
-                            <div className={style.orderTitle}><p>Order Details</p></div>
                             <div className={style.orderItems}>
                                 {stableOrderItems.map((order) => {
                                     // Backend can return either itemId or id for the order-item route parameter.
@@ -363,6 +387,7 @@ function PlaceOrder() {
                     <div className={style.invoiceMeta}>
                         <p><strong>Order:</strong> #{invoiceSnapshot?.orderId ?? "-"}</p>
                         <p><strong>Table:</strong> {invoiceSnapshot?.table ?? tableName ?? "-"}</p>
+                        <p><strong>Waiter:</strong> {invoiceSnapshot?.waiterName ?? waiterName ?? "Unknown waiter"}</p>
                         <p><strong>Created:</strong> {formatDateTime24(invoiceSnapshot?.createdAt)}</p>
                         <p><strong>Paid:</strong> {formatDateTime24(invoiceSnapshot?.paidAt)}</p>
                     </div>

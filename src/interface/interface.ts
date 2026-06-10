@@ -186,6 +186,8 @@ export type OrderRow = {
     id: number;
     table: string;
     status: string;
+  waiterName?: string;
+  waiterUsername?: string;
     subtotal?: string | number;
     taxAmount?: string | number;
     totalPrice?: string | number;
@@ -195,13 +197,24 @@ export type OrderRow = {
 };
 
 export type SalesData = {
-  type: "daily" | "weekly" | "monthly" | "all";
+  type: "daily" | "weekly" | "monthly" | "all" | "income";
   price: number;
 }
+
+export type IIncomeRow = {
+  date?: string;
+  income?: string | number;
+};
 
 export type IDailySalesResponse = {
   date?: string;
   totalSales?: number;
+  yesterdayTotalSales?: number;
+  previousDayTotalSales?: number;
+  yesterday?: {
+    date?: string;
+    totalSales?: number;
+  };
 };
 
 export type IWeeklySalesResponse = {
@@ -220,4 +233,82 @@ export type IAllSalesResponse = {
   daily?: IDailySalesResponse;
   weekly?: IWeeklySalesResponse;
   monthly?: IMonthlySalesResponse;
+};
+
+export type TopSellingPeriod = "daily" | "monthly" | "yearly";
+
+export type ITopSellingItem = {
+  itemId: number;
+  itemName: string;
+  quantitySold: number;
+  revenue: number;
+};
+
+export type ITopSellingRequest = {
+  period: TopSellingPeriod;
+  referenceDate?: string;
+  limit?: number;
+};
+
+export type ITopSellingResponse = {
+  period: TopSellingPeriod;
+  startDate: string;
+  endDate: string;
+  limit: number;
+  items: ITopSellingItem[];
+};
+
+export type IWaiterEarnings = {
+  waiterId: number;
+  waiterFullName: string;
+  ordersCount: number;
+  revenue: number;
+};
+
+export type IWaitersEarningsRequest = {
+  period: TopSellingPeriod;
+  referenceDate?: string;
+  limit?: number;
+  includeAll: boolean;
+};
+
+export type IWaitersEarningsResponse = {
+  period: TopSellingPeriod;
+  startDate: string;
+  endDate: string;
+  limit: number;
+  includeAll: boolean;
+  waiters: IWaiterEarnings[];
+};
+
+export type IReceiptsCountRequest = {
+  period: TopSellingPeriod;
+  referenceDate?: string;
+};
+
+export type IReceiptsCountResponse = {
+  period: TopSellingPeriod;
+  startDate: string;
+  endDate: string;
+  totalReceipts: number;
+};
+
+export type IWaiterChartPoint = {
+  label: string;
+  ordersQuantity: number;
+  revenue: number;
+};
+
+export type IWaiterChartsRequest = {
+  waiterId: number;
+  referenceDate?: string;
+  startYear?: number;
+};
+
+export type IWaiterChartsResponse = {
+  waiterId: number;
+  waiterFullName: string;
+  daily: IWaiterChartPoint[];
+  monthly: IWaiterChartPoint[];
+  yearly: IWaiterChartPoint[];
 };

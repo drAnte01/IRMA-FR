@@ -1,0 +1,213 @@
+.page {
+    --bg: #0d1117;
+    --panel: rgba(11, 18, 32, 0.78);
+    --panel-strong: rgba(14, 23, 40, 0.94);
+    --text: #f5f7fb;
+    --muted: #b9c2d0;
+    --line: rgba(135, 161, 203, 0.24);
+    --accent: #f97316;
+    --accent-strong: #ea580c;
+    --danger: #ff7a7a;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    background:
+        radial-gradient(circle at top left, rgba(249, 115, 22, 0.25), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.16), transparent 24%),
+        linear-gradient(135deg, #05070b 0%, #0d1117 48%, #151d2c 100%);
+    color: var(--text);
+    overflow: hidden;
+}
+
+.backdrop {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent 90%);
+    pointer-events: none;
+}
+
+.heroPanel,
+.formPanel {
+    position: relative;
+    z-index: 1;
+}
+
+.heroPanel {
+    padding: 72px 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+}
+
+.eyebrow {
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #ffd3b5;
+    font-size: 12px;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+.heroPanel h1 {
+    max-width: 10ch;
+    font-size: clamp(3rem, 5vw, 5.5rem);
+    line-height: 0.95;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.copy {
+    max-width: 56ch;
+    color: var(--muted);
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.metaCard {
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+}
+
+.metaCard span {
+    color: var(--muted);
+    font-size: 0.84rem;
+}
+
+.metaCard strong {
+    font-size: 1.02rem;
+}
+
+.formPanel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+}
+
+.form {
+    width: min(100%, 430px);
+    padding: 36px;
+    border-radius: 28px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.35);
+}
+
+.formHeader {
+    margin-bottom: 24px;
+}
+
+.formHeader h2 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.formHeader p {
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.field span {
+    font-size: 0.95rem;
+    color: #eaf1ff;
+}
+
+.field input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(168, 190, 230, 0.22);
+    background: var(--panel-strong);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.field input:focus {
+    border-color: rgba(249, 115, 22, 0.78);
+    transform: translateY(-1px);
+}
+
+.field input::placeholder {
+    color: #7f8ba1;
+}
+
+.field small {
+    color: #ffb4b4;
+}
+
+.errorBox {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(127, 29, 29, 0.26);
+    border: 1px solid rgba(248, 113, 113, 0.34);
+    color: var(--danger);
+}
+
+.submitButton {
+    width: 100%;
+    border: 0;
+    border-radius: 16px;
+    padding: 15px 18px;
+    font-size: 1rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    box-shadow: 0 12px 30px rgba(234, 88, 12, 0.28);
+}
+
+.submitButton:hover {
+    transform: translateY(-2px);
+}
+
+.submitButton:disabled {
+    opacity: 0.75;
+    cursor: wait;
+    transform: none;
+}
+
+@media (max-width: 900px) {
+    .page {
+        grid-template-columns: 1fr;
+    }
+
+    .heroPanel {
+        padding: 48px 24px 20px;
+    }
+
+    .heroPanel h1 {
+        max-width: none;
+        font-size: clamp(2.5rem, 13vw, 4rem);
+    }
+
+    .formPanel {
+        padding: 24px;
+        align-items: flex-start;
+    }
+
+    .form {
+        padding: 28px 22px;
+    }
+}

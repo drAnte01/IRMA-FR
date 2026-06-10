@@ -3,6 +3,16 @@
     color: white;
 }
 
+.summaryRow {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.summaryRow > * {
+    flex: 1;
+}
+
 .filterRow {
     display: flex;
     gap: 10px;
@@ -53,6 +63,10 @@
 }
 
 @media (max-width: 768px) {
+    .summaryRow {
+        flex-direction: column;
+    }
+
     .ordersSection {
         margin-left: 0;
         padding: 12px;

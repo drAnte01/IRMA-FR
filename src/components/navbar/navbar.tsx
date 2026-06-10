@@ -4,12 +4,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import style from "../../styles/components/navBar.module.css";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faHome, faBook, faChair, faMartiniGlass, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 library.add(faHome, faChair, faMartiniGlass, faRightFromBracket, faBook);
 
 function Navbar() {
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
+  const firstName = user?.firstName?.trim();
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <>
@@ -54,11 +62,13 @@ function Navbar() {
             </NavLink>
           </ul>
 
-
-
+        </div>
+        <div className={style.userName}>
+          <span className={style.welcomeLabel}>Welcome</span>
+          <strong className={style.welcomeName}>{firstName || "Guest"}</strong>
         </div>
         <div className={style.logOut}>
-          <button>  <FontAwesomeIcon icon={faRightFromBracket} /> Logout</button>
+          <button type="button" onClick={handleLogout}>  <FontAwesomeIcon icon={faRightFromBracket} /> Logout</button>
         </div>
       </div>
     </>

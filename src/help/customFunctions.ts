@@ -190,6 +190,12 @@ export function normalizeOrders(payload: unknown): OrderRow[] {
     return value as Record<string, unknown>;
   };
 
+  const asText = (value: unknown): string | undefined => {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  };
+
   const parseStatus = (value: unknown): string =>
     String(value ?? "")
       .toLowerCase()
@@ -217,6 +223,30 @@ export function normalizeOrders(payload: unknown): OrderRow[] {
       if (!row) return null;
 
       const orderData = asObject(row.order) ?? row;
+      const waiter = asObject(orderData.waiter) ?? asObject(row.waiter);
+      const createdBy = asObject(orderData.createdBy) ?? asObject(row.createdBy);
+      const waiterFullName = [asText(waiter?.firstName), asText(waiter?.lastName)].filter(Boolean).join(" ") || undefined;
+      const createdByFullName = [asText(createdBy?.firstName), asText(createdBy?.lastName)].filter(Boolean).join(" ") || undefined;
+
+      const waiterName =
+        asText(orderData.waiterName) ??
+        asText(row.waiterName) ??
+        asText(orderData.createdByName) ??
+        asText(row.createdByName) ??
+        asText(waiter?.name) ??
+        asText(createdBy?.name) ??
+        waiterFullName ??
+        createdByFullName ??
+        undefined;
+
+      const waiterUsername =
+        asText(orderData.waiterUsername) ??
+        asText(row.waiterUsername) ??
+        asText(orderData.createdByUsername) ??
+        asText(row.createdByUsername) ??
+        asText(waiter?.username) ??
+        asText(createdBy?.username) ??
+        undefined;
 
       const rawId = Number(
         orderData.id ?? orderData.orderId ?? row.id ?? row.orderId ?? 0,
@@ -233,6 +263,8 @@ export function normalizeOrders(payload: unknown): OrderRow[] {
             "-",
         ),
         status,
+        waiterName,
+        waiterUsername,
         subtotal: (orderData.subtotal ?? row.subtotal) as
           | string
           | number
@@ -279,5 +311,96 @@ export function getPaginationMeta(payload: unknown): {
     totalPages: Number(root.totalPages ?? 1),
     totalOrders: Number(root.totalOrders ?? 0),
     pageSize: Number(root.pageSize ?? 0),
+  };
+}
+
+export type SalesSummary = {
+  daily: number | null;
+  yesterday: number | null;
+  weekly: number | null;
+  monthly: number | null;
+};
+
+export function normalizeSalesSummary(payload: unknown): SalesSummary {
+  const toObject = (value: unknown): Record<string, unknown> | null => {
+    if (typeof value !== "object" || value === null) return null;
+    return value as Record<string, unknown>;
+  };
+
+  const toNumber = (value: unknown): number | null => {
+    if (typeof value === "number") return Number.isFinite(value) ? value : null;
+    if (typeof value === "string") {
+      const cleaned = value.trim().replace(",", ".");
+      if (!cleaned) return null;
+      const parsed = Number(cleaned);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  };
+
+  const readFirstNumber = (
+    source: Record<string, unknown> | null,
+    keys: string[],
+  ): number | null => {
+    if (!source) return null;
+    for (const key of keys) {
+      const value = toNumber(source[key]);
+      if (value !== null) return value;
+    }
+    return null;
+  };
+
+  const root = toObject(payload);
+  const envelope =
+    toObject(root?.data) ??
+    toObject(root?.result) ??
+    toObject(root?.sales) ??
+    root;
+
+  const dailyBlock =
+    toObject(envelope?.daily) ??
+    toObject(envelope?.today) ??
+    toObject(envelope?.danas) ??
+    null;
+  const weeklyBlock =
+    toObject(envelope?.weekly) ??
+    toObject(envelope?.thisWeek) ??
+    toObject(envelope?.week) ??
+    null;
+  const monthlyBlock =
+    toObject(envelope?.monthly) ??
+    toObject(envelope?.thisMonth) ??
+    toObject(envelope?.month) ??
+    null;
+
+  const daily =
+    readFirstNumber(dailyBlock, [
+      "totalSales",
+      "todayTotalSales",
+      "total",
+      "amount",
+      "value",
+      "price",
+    ]) ??
+    readFirstNumber(envelope, ["dailyTotalSales", "todayTotalSales", "dailyTotal"]);
+
+  const yesterday =
+    readFirstNumber(dailyBlock, ["yesterdayTotalSales", "previousDayTotalSales"]) ??
+    readFirstNumber(toObject(dailyBlock?.yesterday), ["totalSales", "total", "amount", "value", "price"]) ??
+    readFirstNumber(envelope, ["yesterdayTotalSales", "previousDayTotalSales", "yesterdayTotal"]);
+
+  const weekly =
+    readFirstNumber(weeklyBlock, ["totalSales", "total", "amount", "value", "price"]) ??
+    readFirstNumber(envelope, ["weeklyTotalSales", "weekTotalSales", "weeklyTotal"]);
+
+  const monthly =
+    readFirstNumber(monthlyBlock, ["totalSales", "total", "amount", "value", "price"]) ??
+    readFirstNumber(envelope, ["monthlyTotalSales", "monthTotalSales", "monthlyTotal"]);
+
+  return {
+    daily,
+    yesterday,
+    weekly,
+    monthly,
   };
 }

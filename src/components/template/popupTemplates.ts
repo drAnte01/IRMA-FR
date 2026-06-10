@@ -56,6 +56,7 @@ export const createNewStaffPopup = () => ({
     lastName: "Lastname",
     phoneNumber: "Phone number",
     email: "Email",
+    username: "Username",
     position: "Position",
     dateOfEmployment: "Date of employment",
     password: "Password",

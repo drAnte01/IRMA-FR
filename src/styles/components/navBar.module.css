@@ -68,12 +68,43 @@
 
 .active {
     background-color: #61d9fa;
-     font-weight: bold;
+    font-weight: bold;
 }
 
 .active span,
-.active svg {
+.active svg {   
     color: #1f2229;
+}
+
+.userName {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-align: center;
+    min-width: 180px;
+    padding: 6px 10px;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.welcomeLabel {
+    color: #9ab0d5;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.welcomeName {
+    color: #f3f7ff;
+    font-size: 19px;
+    font-weight: 800;
+    line-height: 1.1;
+    text-transform: capitalize;
 }
 
 /* Log Out Button */
@@ -136,6 +167,15 @@
 
     .navigationMenu {
         padding: 0 10px 10px 10px;
+    }
+
+    .userName {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        transform: none;
+        margin: 6px 10px 0;
+        min-width: 0;
     }
 
     .navigationMenu ul li {

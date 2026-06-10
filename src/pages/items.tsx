@@ -2,7 +2,7 @@
 import "../App.css"
 import Tab from "../components/tab/tab";
 import style from "../styles/pages/items.module.css";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUtensils, faMartiniGlassCitrus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,8 +21,22 @@ function Items() {
 
     const [activeFilter, setActiveFilter] = useState<string>("All");
     const [Active, setActive] = useState<"food" | "drink">("food");
-    const { data: categoryData } = useFetch<ICategory[]>(GetCategories(CategoryAPI_URL, Active)); // Fetch categories
-    const { data: itemData, loading: itemLoading, error: itemError } = useFetch<IItem[]>(GetItems(ItemAPI_URL, activeFilter)); // Fetch items
+    const [searchInput, setSearchInput] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            setSearchQuery(searchInput.trim());
+        }, 350);
+        return () => {
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
+    }, [searchInput]);
+
+    const { data: categoryData } = useFetch<ICategory[]>(GetCategories(CategoryAPI_URL, Active));
+    const { data: itemData, loading: itemLoading, error: itemError } = useFetch<IItem[]>(GetItems(ItemAPI_URL, activeFilter, searchQuery));
 
     return (
         <>
@@ -38,7 +52,15 @@ function Items() {
                             <Button key={category.id} onClick={() => { setActiveFilter(() => category.name!); console.log("KLIKNUO SI NA: " + category.name) }} className={activeFilter === category.name ? style.activeFilter : ""} variant="filter" size="small" >{category.name}</Button>
                         )) : null}
                     </div>
-                    <div className={style.searchItems}><input type="text" name="search" id="search" placeholder="Search items" />
+                    <div className={style.searchItems}>
+                        <input
+                            type="text"
+                            name="search"
+                            id="search"
+                            placeholder="Search items"
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                        />
                     </div>
                 </div>
                 <div className={style.cardSection}>

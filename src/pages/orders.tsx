@@ -7,12 +7,14 @@ import { useFetch } from "../hooks/useFetch";
 import { formatDateTime24 } from "../help/customFunctions";
 import { getOrdersByStatus, GetSales, OrderAPI_URL, SalesAPI_URL } from "../help/enpoints";
 import style from "../styles/pages/orders.module.css";
-import type { IAllSalesResponse, OrderRow } from "../interface/interface";
+import type { OrderRow } from "../interface/interface";
 import { normalizeOrders } from "../help/customFunctions";
 import { getPaginationMeta } from "../help/customFunctions";
+import { normalizeSalesSummary } from "../help/customFunctions";
 import AccountSummary from "../components/accountSummary/accountSummary";
+import { useAuth } from "../context/AuthContext";
 
-type StatusFilter = "active" | "closed";
+type OrdersStatusView = "active" | "closed";
 const PAGE_SIZE = 20;
 
 function isClosedStatus(status: string): boolean {
@@ -20,21 +22,95 @@ function isClosedStatus(status: string): boolean {
 }
 
 function Orders() {
-    const [statusFilter, setStatusFilter] = useState<StatusFilter>("closed");
+    const [statusView, setStatusView] = useState<OrdersStatusView>("closed");
+    const [myOnly, setMyOnly] = useState(false);
     const [page, setPage] = useState(1);
-    const { data, loading, error } = useFetch<unknown>(getOrdersByStatus(OrderAPI_URL, statusFilter, page, PAGE_SIZE));
-    const { data: allSalesData } = useFetch<IAllSalesResponse>(GetSales(SalesAPI_URL, "all"));
+    const { user } = useAuth();
+    const waiterId = Number.isFinite(Number(user?.id)) ? Number(user?.id) : undefined;
+    const shouldFetchOrders = !(myOnly && !waiterId);
+    const statusParam = statusView === "active" ? "pending" : "closed";
 
-    const dailyTotal = allSalesData?.daily?.totalSales ?? null;
-    const weeklyTotal = allSalesData?.weekly?.totalSales ?? null;
-    const monthlyTotal = allSalesData?.monthly?.totalSales ?? null;
+    const ordersQuery = useFetch<unknown>(
+        getOrdersByStatus(OrderAPI_URL, statusParam, page, PAGE_SIZE, myOnly ? { waiterId } : undefined),
+        shouldFetchOrders,
+    );
+    const summaryClosedOrdersQuery = useFetch<unknown>(getOrdersByStatus(OrderAPI_URL, "closed", 1, 500));
+    const { data: allSalesData } = useFetch<unknown>(GetSales(SalesAPI_URL, "all"));
+    const salesSummary = useMemo(() => normalizeSalesSummary(allSalesData), [allSalesData]);
+
+    const summaryClosedOrders = useMemo(
+        () => normalizeOrders(summaryClosedOrdersQuery.data),
+        [summaryClosedOrdersQuery.data],
+    );
+
+    const ordersSummary = useMemo(() => {
+        const parseAmount = (value: string | number | undefined): number => {
+            if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+            if (typeof value === "string") {
+                const parsed = Number(value.replace(",", ".").trim());
+                return Number.isFinite(parsed) ? parsed : 0;
+            }
+            return 0;
+        };
+
+        const now = new Date();
+        const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        const startYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+
+        let today = 0;
+        let yesterday = 0;
+
+        for (const order of summaryClosedOrders) {
+            if (!order.createdAt) continue;
+            const created = new Date(order.createdAt);
+            if (Number.isNaN(created.getTime())) continue;
+
+            const amount = parseAmount(order.totalPrice);
+
+            if (created >= startToday && created < startTomorrow) {
+                today += amount;
+                continue;
+            }
+
+            if (created >= startYesterday && created < startToday) {
+                yesterday += amount;
+            }
+        }
+
+        return { today, yesterday };
+    }, [summaryClosedOrders]);
+
+    const dailyTotal =
+        (salesSummary.daily ?? 0) > 0
+            ? salesSummary.daily
+            : ordersSummary.today > 0
+                ? ordersSummary.today
+                : salesSummary.daily;
+
+    const yesterdayTotal =
+        (salesSummary.yesterday ?? 0) > 0
+            ? salesSummary.yesterday
+            : ordersSummary.yesterday > 0
+                ? ordersSummary.yesterday
+                : salesSummary.yesterday;
+
+    const weeklyTotal = salesSummary.weekly;
+    const monthlyTotal = salesSummary.monthly;
 
     useEffect(() => {
         setPage(1);
-    }, [statusFilter]);
+    }, [statusView, myOnly]);
 
-    const filteredOrders = useMemo(() => normalizeOrders(data), [data]);
-    const pagination = useMemo(() => getPaginationMeta(data), [data]);
+    const displayedOrders = useMemo(() => {
+        if (myOnly && !waiterId) return [];
+        return normalizeOrders(ordersQuery.data);
+    }, [ordersQuery.data, myOnly, waiterId]);
+
+    const pagination = useMemo(() => getPaginationMeta(ordersQuery.data), [ordersQuery.data]);
+
+    const loading = ordersQuery.loading;
+    const error = ordersQuery.error;
 
     const canGoPrev = pagination.currentPage > 1;
     const canGoNext = pagination.currentPage < pagination.totalPages;
@@ -70,41 +146,57 @@ function Orders() {
     return (
         <>
             <div className="orders">
-                <AccountSummary daily={dailyTotal} weekly={weeklyTotal} monthly={monthlyTotal} show={{ daily: true, weekly: false, monthly: false }} />
+                <div className={style.summaryRow}>
+                    <AccountSummary
+                        daily={dailyTotal}
+                        yesterday={yesterdayTotal}
+                        weekly={weeklyTotal}
+                        monthly={monthlyTotal}
+                        show={{ daily: true, yesterday: true, weekly: false, monthly: false }}
+                    />
+                </div>
                 <div className={style.ordersSection}>
                     <div className={style.filterRow}>
                         <Button
                             variant="filter"
                             size="small"
-                            className={statusFilter === "active" ? style.activeFilter : ""}
-                            onClick={() => setStatusFilter("active")}
+                            className={statusView === "active" ? style.activeFilter : ""}
+                            onClick={() => setStatusView("active")}
                         >
                             active
                         </Button>
                         <Button
                             variant="filter"
                             size="small"
-                            className={statusFilter === "closed" ? style.activeFilter : ""}
-                            onClick={() => setStatusFilter("closed")}
+                            className={statusView === "closed" ? style.activeFilter : ""}
+                            onClick={() => setStatusView("closed")}
                         >
                             closed
+                        </Button>
+                        <Button
+                            variant="filter"
+                            size="small"
+                            className={myOnly ? style.activeFilter : ""}
+                            onClick={() => setMyOnly((prev) => !prev)}
+                        >
+                            My orders
                         </Button>
                     </div>
 
                     {loading && <p>Loading orders...</p>}
                     {error && <p>Error loading orders: {error.message}</p>}
 
-                    {!loading && !error && filteredOrders.length === 0 && (
-                        <p>No {statusFilter} orders found.</p>
+                    {!loading && !error && displayedOrders.length === 0 && (
+                        <p>No {myOnly ? "my " : ""}{statusView} orders found.</p>
                     )}
 
-                    {!loading && !error && filteredOrders.length > 0 && (
+                    {!loading && !error && displayedOrders.length > 0 && (
                         <>
                             <div className={style.tableWrap}>
-                                <Table columns={columns} data={filteredOrders} size="l" />
+                                <Table columns={columns} data={displayedOrders} size="l" />
                             </div>
 
-                            <div className={style.paginationRow}>
+                                <div className={style.paginationRow}>
                                 <p className={style.paginationMeta}>
                                     Page {pagination.currentPage} of {pagination.totalPages} | Total orders: {pagination.totalOrders} | Page size: {pagination.pageSize}
                                 </p>
@@ -126,7 +218,7 @@ function Orders() {
                                         Next
                                     </Button>
                                 </div>
-                            </div>
+                                </div>
                         </>
                     )}
                 </div>

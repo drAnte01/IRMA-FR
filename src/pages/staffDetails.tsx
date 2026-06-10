@@ -2,18 +2,31 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useFetch } from "../hooks/useFetch";
 import { useDelete } from "../hooks/useDelete";
 import { useUpdate } from "../hooks/useUpdate";
-import type { IStaff } from "../interface/interface";
-import { StaffAPI_URL } from "../help/enpoints";
+import { useCreate } from "../hooks/useCreate";
+import type { IStaff, IWaiterChartsRequest, IWaiterChartsResponse, IWaiterChartPoint } from "../interface/interface";
+import { StaffAPI_URL, SalesAPI_URL, getWaiterChartsEndpoint } from "../help/enpoints";
 import Button from "../components/button/button";
 import Message from "../components/Ui/Mesage";
 import { updateSuccessMessage, updateErrorMessage } from "../components/template/messageTemplates";
 import style from "../styles/pages/staffDetails.module.css";
 import { useState, useEffect, useRef } from "react";
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  Bar,
+  Line,
+} from "recharts";
 
 type EditForm = {
   firstName: string;
   lastName: string;
   email: string;
+  username: string;
   phoneNumber: string;
   position: string;
   role: "admin" | "none";
@@ -69,6 +82,7 @@ function validate(form: EditForm, shouldChangePassword: boolean): FormErrors {
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
     errs.email = "Email is not valid.";
   }
+  if (!form.username.trim()) errs.username = "Username is required.";
   if (!form.phoneNumber.trim()) errs.phoneNumber = "Phone number is required.";
   if (!form.position.trim()) errs.position = "Position is required.";
   if (!form.dateOfEmployment) errs.dateOfEmployment = "Date of employment is required.";
@@ -97,11 +111,12 @@ function StaffDetails() {
   const { data: staffMember, loading, error } = useFetch<IStaff>(endpoint);
   const { deleteData } = useDelete();
   const { updateData, loading: saving } = useUpdate<Partial<IStaff>>();
+  const { createNewData: createWaiterCharts } = useCreate<IWaiterChartsRequest>();
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState<EditForm>({
-    firstName: "", lastName: "", email: "", phoneNumber: "",
+    firstName: "", lastName: "", email: "", username: "", phoneNumber: "",
     position: "", role: "none", dateOfEmployment: "", image: "", password: "", confirmPassword: "",
   });
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -113,6 +128,9 @@ function StaffDetails() {
     content: "",
     status: " ",
   });
+  const [waiterCharts, setWaiterCharts] = useState<IWaiterChartsResponse | null>(null);
+  const [waiterChartsLoading, setWaiterChartsLoading] = useState(false);
+  const [waiterChartsError, setWaiterChartsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (staffMember) {
@@ -120,6 +138,7 @@ function StaffDetails() {
         firstName: staffMember.firstName ?? "",
         lastName: staffMember.lastName ?? "",
         email: staffMember.email ?? "",
+        username: staffMember.username ?? "",
         phoneNumber: staffMember.phoneNumber ?? "",
         position: staffMember.position ?? "",
         role: staffMember.role ?? "none",
@@ -130,6 +149,36 @@ function StaffDetails() {
       });
     }
   }, [staffMember]);
+
+  useEffect(() => {
+    if (!staffId) return;
+
+    let cancelled = false;
+    setWaiterChartsLoading(true);
+    setWaiterChartsError(null);
+
+    createWaiterCharts(getWaiterChartsEndpoint(SalesAPI_URL), {
+      waiterId: Number(staffId),
+      referenceDate: new Date().toISOString().slice(0, 10),
+      startYear: 2024,
+    })
+      .then((result) => {
+        if (cancelled) return;
+        setWaiterCharts(result && typeof result === "object" ? (result as IWaiterChartsResponse) : null);
+      })
+      .catch((chartError) => {
+        if (cancelled) return;
+        setWaiterCharts(null);
+        setWaiterChartsError(chartError instanceof Error ? chartError.message : "Failed to load waiter charts.");
+      })
+      .finally(() => {
+        if (!cancelled) setWaiterChartsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [createWaiterCharts, staffId]);
 
   const handleChange = (field: keyof EditForm, value: string) => {
     const updated = { ...form, [field]: value } as EditForm;
@@ -153,6 +202,7 @@ function StaffDetails() {
       firstName: form.firstName,
       lastName: form.lastName,
       email: form.email,
+      username: form.username,
       phoneNumber: form.phoneNumber,
       position: form.position,
       role: form.role,
@@ -214,6 +264,40 @@ function StaffDetails() {
   };
 
   const hasErrors = Object.keys(formErrors).length > 0;
+
+  const renderChartPanel = (title: string, data: IWaiterChartPoint[] | undefined) => {
+    if (!data || data.length === 0) {
+      return (
+        <div className={style.chartCard}>
+          <h3>{title}</h3>
+          <p className={style.chartEmpty}>No data for this period.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className={style.chartCard}>
+        <h3>{title}</h3>
+        <div className={style.chartWrap}>
+          <ResponsiveContainer width="100%" height={280}>
+            <ComposedChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#2f3440" />
+              <XAxis dataKey="label" stroke="#aab3c2" tickLine={false} axisLine={false} />
+              <YAxis yAxisId="left" stroke="#aab3c2" tickLine={false} axisLine={false} />
+              <YAxis yAxisId="right" orientation="right" stroke="#aab3c2" tickLine={false} axisLine={false} />
+              <Tooltip
+                contentStyle={{ background: "#1f2229", border: "1px solid #2f3440", borderRadius: 8, color: "#fff" }}
+                labelStyle={{ color: "#fff" }}
+              />
+              <Legend />
+              <Bar yAxisId="left" dataKey="ordersQuantity" name="Orders" fill="#61d9fa" radius={[6, 6, 0, 0]} />
+              <Line yAxisId="right" dataKey="revenue" name="Revenue" stroke="#ff9900" strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  };
 
   if (!staffId) {
     return (
@@ -321,6 +405,7 @@ function StaffDetails() {
             {renderField("First name", "firstName")}
             {renderField("Lastname", "lastName")}
             {renderField("E-mail", "email", "email")}
+            {renderField("Username", "username")}
             {renderField("Phone number", "phoneNumber")}
             {renderField("Position", "position")}
             <div className={style.row}>
@@ -373,6 +458,19 @@ function StaffDetails() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className={style.chartsSection}>
+        <h2>Earnings overview{waiterCharts && waiterCharts.waiterFullName ? ` - ${waiterCharts.waiterFullName}` : ""}</h2>
+        {waiterChartsLoading && <p>Loading charts...</p>}
+        {waiterChartsError && <p className={style.error}>{waiterChartsError}</p>}
+        {!waiterChartsLoading && !waiterChartsError && waiterCharts && (
+          <div className={style.chartsGrid}>
+            {renderChartPanel("Daily - last 30 days", waiterCharts.daily)}
+            {renderChartPanel("Monthly - last 12 months", waiterCharts.monthly)}
+            {renderChartPanel("Yearly - since 2024", waiterCharts.yearly)}
+          </div>
+        )}
       </div>
 
     </div>

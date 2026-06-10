@@ -1,11 +1,11 @@
 //hooks/create.ts
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Create } from "../api/API";
 
 export function useCreate<T>() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const createNewData = async (URL_Endpoint: string, data: T) => {
+  const createNewData = useCallback(async (URL_Endpoint: string, data: T) => {
     setLoading(true);
     setError(null);
     try {
@@ -17,7 +17,7 @@ export function useCreate<T>() {
       setLoading(false);
       throw err;
     }
-  };
+  }, []);
 
   return { createNewData, loading, error };
 }
