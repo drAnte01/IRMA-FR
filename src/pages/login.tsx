@@ -71,21 +71,18 @@ function Login() {
       <div className={style.backdrop} />
       <section className={style.heroPanel}>
         <p className={style.eyebrow}>IRMA Frontend</p>
-        <h1>Prijava osoblja</h1>
+        <h1>Staff Login</h1>
         <p className={style.copy}>
-          Forma je spremna za backend login endpoint, čuva access token i automatski ga šalje u Authorization header za naredne API pozive.
+          Having trouble logging in? Contact us at support@email.com or +387 XX XXX XXX.
         </p>
-        <div className={style.metaCard}>
-          <span>Endpoint</span>
-          <strong>POST /api/auth/login</strong>
-        </div>
+       
       </section>
 
       <section className={style.formPanel}>
         <form className={style.form} onSubmit={onSubmit} noValidate>
           <div className={style.formHeader}>
             <h2>Login</h2>
-            <p>Unesite korisničko ime i lozinku za pristup aplikaciji.</p>
+            <p>Enter your username and password to access the application.</p>
           </div>
 
           <label className={style.field}>
@@ -93,7 +90,7 @@ function Login() {
             <input
               type="text"
               autoComplete="username"
-              placeholder="npr. admin"
+              placeholder="E.g. admin"
               {...register("username")}
             />
             {errors.username && <small>{errors.username.message}</small>}
@@ -104,7 +101,7 @@ function Login() {
             <input
               type="password"
               autoComplete="current-password"
-              placeholder="Unesite lozinku"
+              placeholder="Enter your password"
               {...register("password")}
             />
             {errors.password && <small>{errors.password.message}</small>}

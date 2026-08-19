@@ -26,7 +26,7 @@ export type IStaff = {
   position?: string;
   username?: string;
   password?: string;
-  role?: "admin" | "none";
+  role?: "Admin" | "none";
   dateOfEmployment?: string;
   createdAt?: string;
   typeStaff?: string;
@@ -83,7 +83,7 @@ export type IInput = {
   position?: string;
   username?: string;
   password?: string;
-  role?: "admin" | "none";
+  role?: "Admin" | "none";
   dateOfEmployment?: string;
   createdAt?: string;
   typeStaff?: string;
@@ -171,7 +171,7 @@ export type IFormData = {
   position?: string;
   username?: string;
   password?: string;
-  role?: "admin" | "none";
+  role?: "Admin" | "none";
   dateOfEmployment?: string;
   createdAt?: string;
   dateOfBirth?: string;

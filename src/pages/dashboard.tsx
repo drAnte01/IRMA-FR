@@ -482,7 +482,7 @@ function Dashboard() {
         onSubmit: undefined,
         confirmClick: undefined,
         options: [""],
-        roleOptions: ["admin", "none"],
+        roleOptions: ["Admin", "none"],
         content: "",
     });
     const currentId = useRef<number>(0)

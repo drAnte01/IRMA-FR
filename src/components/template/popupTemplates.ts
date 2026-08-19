@@ -63,5 +63,5 @@ export const createNewStaffPopup = () => ({
     role: "Role",
     createdAt: "Created at",
   },
-  roleOptions: ["admin", "none"],
+  roleOptions: ["Admin", "none"],
 });

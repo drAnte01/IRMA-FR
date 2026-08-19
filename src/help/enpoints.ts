@@ -2,12 +2,21 @@
 import type {SalesData} from "../interface/interface";
 
 
-const CategoryAPI_URL = "http://localhost:5000/api/Category";
-const ItemAPI_URL = "http://localhost:5000/api/Item";
-const OrderAPI_URL = "http://localhost:5000/api/Order";
-const SalesAPI_URL = "http://localhost:5000/api/Sales";
-const StaffAPI_URL = "http://localhost:5000/api/Staff";
-const AuthAPI_URL = "http://localhost:5000/api/auth";
+const LOCAL_BACKEND_ORIGIN = "http://localhost:5000";
+const LAN_BACKEND_ORIGIN = "http://192.168.2.208:5000";
+
+const API_ORIGIN =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? LOCAL_BACKEND_ORIGIN
+    : LAN_BACKEND_ORIGIN;
+
+const CategoryAPI_URL = `${API_ORIGIN}/api/Category`;
+const ItemAPI_URL = `${API_ORIGIN}/api/Item`;
+const OrderAPI_URL = `${API_ORIGIN}/api/Order`;
+const SalesAPI_URL = `${API_ORIGIN}/api/Sales`;
+const StaffAPI_URL = `${API_ORIGIN}/api/Staff`;
+const AuthAPI_URL = `${API_ORIGIN}/api/auth`;
 
 
 function GetSales(

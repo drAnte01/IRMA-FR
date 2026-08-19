@@ -29,7 +29,7 @@ type EditForm = {
   username: string;
   phoneNumber: string;
   position: string;
-  role: "admin" | "none";
+  role: "Admin" | "none";
   dateOfEmployment: string;
   image: string;
   password: string;
@@ -415,9 +415,9 @@ function StaffDetails() {
                   <select
                     className={style.editInput}
                     value={form.role}
-                    onChange={e => handleChange("role", e.target.value as "admin" | "none")}
+                    onChange={e => handleChange("role", e.target.value as "Admin" | "none")}
                   >
-                    <option value="admin">admin</option>
+                    <option value="Admin">Admin</option>
                     <option value="none">none</option>
                   </select>
                 ) : (

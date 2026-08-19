@@ -13,7 +13,7 @@ function AdminProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (user?.role !== "admin") {
+  if (user?.role !== "Admin") {
     return (
       <div style={{ color: "white", padding: "24px", textAlign: "center" }}>
         <h2>Access Denied</h2>

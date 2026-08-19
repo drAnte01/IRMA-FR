@@ -76,7 +76,7 @@ function PopUp(props: PopUpProps) {
             phoneNumber: formData.get("phoneNumber") as string,
             position: formData.get("position") as string,
             dateOfEmployment: formData.get("dateOfEmployment") as string,
-            role: (formData.get("role") as "admin" | "none" | null) ?? undefined,
+            role: (formData.get("role") as "Admin" | "none" | null) ?? undefined,
             createdAt: formData.get("createdAt") as string,
         }
         console.log(data);
@@ -220,7 +220,7 @@ function PopUp(props: PopUpProps) {
                                     <div className={style.staffField}>
                                         <label htmlFor="role">{labels.role}</label>
                                         <select id="role" name="role" defaultValue={props.input?.role ?? "none"} required>
-                                            {(props.roleOptions ?? ["admin", "none"]).map((option) => (
+                                            {(props.roleOptions ?? ["Admin", "none"]).map((option) => (
                                                 <option key={option} value={option}>{option}</option>
                                             ))}
                                         </select>
